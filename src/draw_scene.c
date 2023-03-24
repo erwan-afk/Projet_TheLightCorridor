@@ -38,4 +38,20 @@ void drawTunnel() {
 		glPopMatrix();
 }
 
+void drawRaquette(){
+
+    glPushMatrix();
+        glColor3f(1.0,1.0,1.0); 
+        glTranslatef(0.0,0.0,5.0);
+        glRotatef(90.0,0.0,1.0,0.0); 
+        glBegin(GL_LINE_LOOP);
+            glVertex3f(2.0,2.0,5.0);
+            glVertex3f(-2.0,2.0,5.0);
+            glVertex3f(-2.0,-2.0,5.0);
+            glVertex3f(2.0,-2.0,5.0);
+        glEnd();
+    glPopMatrix();
+
+}
+
 

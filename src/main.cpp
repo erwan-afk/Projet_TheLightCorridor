@@ -130,8 +130,9 @@ int main() {
 		setCamera();
 
 		/* Initial scenery setup */
-		
+		drawRaquette();
 		drawTunnel();
+		
 		
 	
 
