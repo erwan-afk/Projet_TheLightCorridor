@@ -5,7 +5,7 @@ float profondeur = 90.0;
 float hauteur = 20.0;
 
 void drawTunnel() {
-		glTranslatef(0.0,0.0,-(hauteur/2));
+		glTranslatef(-profondeur/2,0.0,-(hauteur/2));
 
         glPushMatrix();
 		    glTranslatef(0.0,0.0,0.0);
