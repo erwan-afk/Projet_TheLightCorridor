@@ -121,7 +121,7 @@ int main() {
 		double startTime = glfwGetTime();
 
 		/* Cleaning buffers and setting Matrix Mode */
-		glClearColor(0.0,0.0,0.0,0.0);
+		glClearColor(0.2,0.0,0.0,0.0);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -130,9 +130,8 @@ int main() {
 		setCamera();
 
 		/* Initial scenery setup */
-		drawRaquette();
 		drawTunnel();
-		
+		drawRaquette(); 
 		
 	
 
