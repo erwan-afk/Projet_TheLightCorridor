@@ -11,7 +11,8 @@ float xGraph = 0.0;
 float yGraph = 0.0; 
 
 void drawTunnel() {
-        glTranslatef(0.0,0.0,-(hauteur/2));
+    glPushMatrix();
+        glTranslatef(-profondeur/2,0.0,-(hauteur/2));
 
         glPushMatrix();
             glTranslatef(0.0,0.0,0.0);
@@ -42,13 +43,14 @@ void drawTunnel() {
             glColor3f(0.0,0.0,0.9);
             drawSquare();
         glPopMatrix();
+    glPopMatrix();
 }
 
 void drawRaquette(){
 
     glPushMatrix();
         glColor3f(1.0,1.0,1.0); 
-        glTranslatef(0.0,0.0,hauteur/2);
+        glTranslatef(0.0,0.0,0.0);
         glRotatef(90.0,0.0,1.0,0.0); 
         glBegin(GL_LINE_LOOP);
             glVertex3f(xGraph+2.0,yGraph+2.0,0.0);
