@@ -8,8 +8,10 @@
 /* Window properties */
 static const unsigned int WINDOW_WIDTH = 1000;
 static const unsigned int WINDOW_HEIGHT = 1000;
-static const char WINDOW_TITLE[] = "TD04 Ex01";
+static const char WINDOW_TITLE[] = "The Light Corridor";
 static float aspectRatio = 1.0;
+
+double x, y = 0.0; 
 
 /* Minimal time wanted between two images */
 static const double FRAMERATE_IN_SECONDS = 1. / 30.;
@@ -61,26 +63,28 @@ void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 			case GLFW_KEY_KP_3 :
 				if(dist_zoom>1.0f) dist_zoom*=0.9;
 				std::cout << "Zoom is " << dist_zoom << std::endl;
-				break;
-			case GLFW_KEY_UP :
-				if (phy>2) phy -= 2;
-				std::cout << "Phy is " << phy << std::endl;
-				break;
-			case GLFW_KEY_DOWN :
-				if (phy<=88.) phy += 2;
-				std::cout << "Phy is " << phy << std::endl;
-				break;
-			case GLFW_KEY_LEFT :
-				theta -= 5;
-				break;
-			case GLFW_KEY_RIGHT :
-				theta += 5;
+			     double xpos, ypos;	theta += 5;
 				break;
 			default:
 				std::cout << "Touche non gérée (" << key << ")" << std::endl;
 		}
 	}
 }
+
+void cursor_position_callBack(GLFWwindow* window, double xpos, double ypos){
+  
+     //getting cursor position
+     glfwGetCursorPos(window, &xpos, &ypos);
+
+    x = ((xpos * 2 / WINDOW_WIDTH) - 1) * WINDOW_WIDTH / WINDOW_HEIGHT;
+    y = -((ypos * 2 / WINDOW_HEIGHT) - 1);
+
+	y = y*std::tan(90.0/2) * 30.0;
+	x = x*std::tan(90.0/2) * 30.0;
+
+    }
+
+
 
 int main() {
     // Initialize the library
@@ -112,7 +116,11 @@ int main() {
     glfwSetWindowSizeCallback(window,onWindowResized);
 	glfwSetKeyCallback(window, onKey);
 
+	glfwSetCursorPosCallback(window, cursor_position_callBack);
+
     onWindowResized(window,WINDOW_WIDTH,WINDOW_HEIGHT);
+	  
+
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
@@ -131,9 +139,11 @@ int main() {
 
 		/* Initial scenery setup */
 		drawTunnel();
-		drawRaquette(); 
+		drawRaquette(x, y); 
+		std::cout << x << " - " << y << std::endl;
 		
-	
+		
+
 
 		/* Scene rendering */
 

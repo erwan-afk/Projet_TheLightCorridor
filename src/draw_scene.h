@@ -7,5 +7,5 @@
 #include <math.h>
 
 void drawTunnel();
-void drawRaquette();
+void drawRaquette(double x, double z);
 
