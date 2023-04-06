@@ -5,6 +5,7 @@
 #include "3D_tools.h"
 #include "draw_scene.h"
 
+
 /* Window properties */
 static const unsigned int WINDOW_WIDTH = 1000;
 static const unsigned int WINDOW_HEIGHT = 1000;
@@ -21,9 +22,10 @@ static int flag_animate_rot_scale = 0;
 static int flag_animate_rot_arm = 0;
 
 bool start = false;
-float vitesse = 1.1;
-float deplacement = 1.0;
-float sens = 1;
+double deltaTime = 0.0;
+
+
+
 
 /* Error handling function */
 void onError(int error, const char* description) {
@@ -87,8 +89,8 @@ void cursor_position_callBack(GLFWwindow* window, double xpos, double ypos){
     x = ((xpos * 2 / WINDOW_WIDTH) - 1) * WINDOW_WIDTH / WINDOW_HEIGHT;
     y = -((ypos * 2 / WINDOW_HEIGHT) - 1);
 
-	y = y*std::tan(90.0/2) * 30.0;
-	x = x*std::tan(90.0/2) * 30.0;
+	y = y*std::tan(90.0/2) * 10.0;
+	x = x*std::tan(90.0/2) * 10.0;
 
     }
 
@@ -127,14 +129,18 @@ int main() {
 	glfwSetCursorPosCallback(window, cursor_position_callBack);
 
     onWindowResized(window,WINDOW_WIDTH,WINDOW_HEIGHT);
-	  
-
+	
+	/* Get time (in second) at loop beginning */
+	double startTime = glfwGetTime();
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
 	{
-		/* Get time (in second) at loop beginning */
-		double startTime = glfwGetTime();
+		
+		//au début de la boucle, calculer le temps écoulé depuis la dernière image :
+		double currentTime = glfwGetTime();
+		deltaTime = currentTime - startTime;
+		startTime = currentTime;
 
 		/* Cleaning buffers and setting Matrix Mode */
 		glClearColor(0.2,0.0,0.0,0.0);
@@ -147,37 +153,18 @@ int main() {
 
 		/* Initial scenery setup */
 		drawTunnel();
-<<<<<<< Updated upstream
-		drawRaquette(x, y); 
-		std::cout << x << " - " << y << std::endl;
-=======
+		drawRaquette(x,y); 
+		drawBall(myball);
+		//utiliser le temps écoulé pour mettre à jour la position de la balle
+		updateBall(myball, deltaTime,x, y);
 		
-		glPushMatrix();
-		glTranslatef(-deplacement,0.0,0.0);
-		if (sens == 1)
-		{
-			deplacement += vitesse;
-		}else
-		{
-			deplacement -= vitesse;
-		}
-		
-		if (deplacement > 90.0)
-		{
-			sens = -1;
-		}
-		if (deplacement < 0.0)
-		{
-			sens = 1;
-		}
-		drawBall();
-		glPopMatrix();
 
-
-		drawRaquette(); 
->>>>>>> Stashed changes
-		
-		
+		/*
+		glColor3f(1.0,1.0,1.0);
+		glBegin(GL_POINTS); // Démarre un groupe de points
+    	glVertex3f(0.0f, 4.0f, 0.0f); // Ajoute un point au milieu de l'écran
+    	glEnd(); // Termine le groupe de points
+		*/
 
 
 		/* Scene rendering */
