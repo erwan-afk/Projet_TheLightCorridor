@@ -7,5 +7,10 @@
 #include <math.h>
 
 void drawTunnel();
+<<<<<<< Updated upstream
 void drawRaquette(double x, double z);
+=======
+void drawBall();
+void drawRaquette();
+>>>>>>> Stashed changes
 

@@ -20,6 +20,11 @@ static const double FRAMERATE_IN_SECONDS = 1. / 30.;
 static int flag_animate_rot_scale = 0;
 static int flag_animate_rot_arm = 0;
 
+bool start = false;
+float vitesse = 1.1;
+float deplacement = 1.0;
+float sens = 1;
+
 /* Error handling function */
 void onError(int error, const char* description) {
     std::cout << "GLFW Error: " << description << std::endl;
@@ -64,6 +69,9 @@ void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 				if(dist_zoom>1.0f) dist_zoom*=0.9;
 				std::cout << "Zoom is " << dist_zoom << std::endl;
 			     double xpos, ypos;	theta += 5;
+				break;
+			case GLFW_KEY_SPACE :
+				start = true;
 				break;
 			default:
 				std::cout << "Touche non gérée (" << key << ")" << std::endl;
@@ -139,8 +147,35 @@ int main() {
 
 		/* Initial scenery setup */
 		drawTunnel();
+<<<<<<< Updated upstream
 		drawRaquette(x, y); 
 		std::cout << x << " - " << y << std::endl;
+=======
+		
+		glPushMatrix();
+		glTranslatef(-deplacement,0.0,0.0);
+		if (sens == 1)
+		{
+			deplacement += vitesse;
+		}else
+		{
+			deplacement -= vitesse;
+		}
+		
+		if (deplacement > 90.0)
+		{
+			sens = -1;
+		}
+		if (deplacement < 0.0)
+		{
+			sens = 1;
+		}
+		drawBall();
+		glPopMatrix();
+
+
+		drawRaquette(); 
+>>>>>>> Stashed changes
 		
 		
 

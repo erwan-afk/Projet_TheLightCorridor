@@ -11,6 +11,7 @@ float xGraph = 0.0;
 float yGraph = 0.0; 
 
 
+
 void drawTunnel() {
     glPushMatrix();
         glTranslatef(-profondeur/2,0.0,-(hauteur/2));
@@ -47,7 +48,23 @@ void drawTunnel() {
     glPopMatrix();
 }
 
+<<<<<<< Updated upstream
 void drawRaquette(double x, double z){
+=======
+void drawBall(){
+
+    glPushMatrix();
+
+    glTranslatef(-1.0,0.0,0.0);
+    glColor3f(1.0,0.0,0.0);
+    drawSphere();
+    glPopMatrix();
+
+
+}
+
+void drawRaquette(){
+>>>>>>> Stashed changes
 
     glPushMatrix();
         glColor3f(1.0,1.0,1.0); 
