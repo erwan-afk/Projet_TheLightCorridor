@@ -7,10 +7,11 @@
 
 
 /* Window properties */
-static const unsigned int WINDOW_WIDTH = 1000;
-static const unsigned int WINDOW_HEIGHT = 1000;
+static unsigned int WINDOW_WIDTH = 1000;
+static unsigned int WINDOW_HEIGHT = 1000;
 static const char WINDOW_TITLE[] = "The Light Corridor";
 static float aspectRatio = 1.0;
+static float focal = 60.0; 
 
 double x, y = 0.0; 
 
@@ -39,8 +40,14 @@ void onWindowResized(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(60.0,aspectRatio,Z_NEAR,Z_FAR);
+	gluPerspective(focal,aspectRatio,Z_NEAR,Z_FAR);
 	glMatrixMode(GL_MODELVIEW);
+
+	WINDOW_HEIGHT = height;
+	WINDOW_WIDTH = width;
+	
+
+
 }
 
 void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -89,8 +96,8 @@ void cursor_position_callBack(GLFWwindow* window, double xpos, double ypos){
     x = ((xpos * 2 / WINDOW_WIDTH) - 1) * WINDOW_WIDTH / WINDOW_HEIGHT;
     y = -((ypos * 2 / WINDOW_HEIGHT) - 1);
 
-	y = y*std::tan(90.0/2) * 10.0;
-	x = x*std::tan(90.0/2) * 10.0;
+	y = y*std::tan(((focal*M_PI)/180)/2) * dist_zoom;
+	x = x*std::tan(((focal*M_PI)/180)/2) * dist_zoom;
 
     }
 
@@ -120,7 +127,8 @@ int main() {
         return -1;
     }
 
-    // Make the window's context current
+    // Make the window's context current		glEnable(GL_DEPTH_TEST);
+
     glfwMakeContextCurrent(window);
 
     glfwSetWindowSizeCallback(window,onWindowResized);
@@ -145,26 +153,30 @@ int main() {
 		/* Cleaning buffers and setting Matrix Mode */
 		glClearColor(0.2,0.0,0.0,0.0);
 
+//		glEnable(GL_DEPTH_TEST);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
-		setCamera();
+		setCamera(); 
 
 		/* Initial scenery setup */
-		drawTunnel();
-		drawRaquette(x,y); 
 		drawBall(myball);
+		drawTunnel();
+		//drawMur(mur);
+		drawRaquette(x,y); 
+		
+		
 		//utiliser le temps écoulé pour mettre à jour la position de la balle
 		updateBall(myball, deltaTime,x, y);
 		
 
-		/*
+		
 		glColor3f(1.0,1.0,1.0);
 		glBegin(GL_POINTS); // Démarre un groupe de points
-    	glVertex3f(0.0f, 4.0f, 0.0f); // Ajoute un point au milieu de l'écran
+    	glVertex3f(0.0f, 0.0f, 0.0f); // Ajoute un point au milieu de l'écran
     	glEnd(); // Termine le groupe de points
-		*/
+		
 
 
 		/* Scene rendering */

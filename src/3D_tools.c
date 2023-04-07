@@ -3,16 +3,14 @@
 /* Camera parameters and functions */
 float theta = 0.0f; // Angle between x axis and viewpoint
 float phy = 90.0f; // Angle between z axis and viewpoint
-float dist_zoom = 30.0f; // Distance between origin and viewpoint
+float dist_zoom = 20.0f; // Distance between origin and viewpoint
 
 
 
 void setCamera() {
-	gluLookAt(dist_zoom*cos(toRad(theta))*sin(toRad(phy)),
-			  dist_zoom*sin(toRad(theta))*sin(toRad(phy)),
-			  dist_zoom*cos(toRad(phy)),
-			  0.0,0.0,0.0,
-			  0.0,0.0,1.0);
+	gluLookAt(dist_zoom,0.0,0.0, //origin cam
+			  0.0,0.0,0.0, //point regardé
+			  0.0,0.0,1.0);//orientation 
 }
 
 /* Convert degree to radians */

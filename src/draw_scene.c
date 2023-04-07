@@ -8,6 +8,8 @@ float profondeur = 90.0;
 float hauteur = 20.0;
 float largeur = 30.0;
 
+const float coefRaquette = 2.0; 
+
 //Parametre souris 
 float xGraph = 0.0;
 float yGraph = 0.0; 
@@ -82,7 +84,23 @@ void updateBall(Ball& ball, float deltaTime,float mouseY, float mouseZ) {
 
     if (ball.x > profondeur){
         sens = 0;
+        ball.speedY = -ball.speedY; 
+        ball.speedZ = -ball.speedZ;
+
     }
+    if (ball.z > hauteur/2){
+        ball.speedZ = -ball.speedZ;
+    }
+    if (ball.z < -hauteur/2){
+        ball.speedZ = -ball.speedZ;
+    }
+    if (ball.y > largeur/2){
+        ball.speedY = -ball.speedY; 
+    }
+    if (ball.y < -largeur/2){
+        ball.speedY = -ball.speedY; 
+    }
+
 
     float square_size = 4.0f;
 
@@ -99,20 +117,11 @@ void updateBall(Ball& ball, float deltaTime,float mouseY, float mouseZ) {
             
             
             sens = 1;
-            ball.speedY= -((ball.z+mouseZ)-square_size);
-            ball.speedZ= -((ball.y+mouseY)-square_size);
+    
 
-            if ((-((ball.z+mouseZ)-square_size)) > (-((ball.y+mouseY)-square_size)))
-            {
-                ball.speedZ= -((ball.y+mouseY)-square_size);
-                ball.speedY =0.0f;
-            }else
-            {
-                ball.speedY= -((ball.z+mouseZ)-square_size);
-                ball.speedZ= 0.0f;
-            }
-            
-            
+            ball.speedY = (ball.y - mouseY)*coefRaquette; 
+            ball.speedZ = (ball.z - mouseZ)*coefRaquette; 
+      
             std::cout << "speedY :"<< ball.speedY << "speedZ :" << ball.speedZ <<std::endl;
         }
         /*
@@ -138,4 +147,22 @@ void updateBall(Ball& ball, float deltaTime,float mouseY, float mouseZ) {
         ball.z-=ball.speedZ* deltaTime;
     }
   
+}
+
+Mur mur = {-40.0,0.0,0.0,6.0,6.0};
+
+void drawMur(Mur mur) {
+
+    glPushMatrix();
+        glColor3f(0.0,1.0,0.0); 
+        glTranslatef(mur.x,mur.y,mur.z);
+        glRotatef(90.0,0.0,1.0,0.0); 
+        glBegin(GL_POLYGON);
+            glVertex3f(xGraph+mur.largeur,yGraph+mur.largeur,0.0);
+            glVertex3f(xGraph-mur.largeur,yGraph+mur.largeur,0.0);
+            glVertex3f(xGraph-mur.largeur,yGraph-mur.largeur,0.0);
+            glVertex3f(xGraph+mur.largeur,yGraph-mur.largeur,0.0);
+        glEnd();
+    glPopMatrix();
+
 }

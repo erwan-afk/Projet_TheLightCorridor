@@ -20,16 +20,22 @@ typedef struct Ball{
 } Ball;
 
 typedef struct Mur{
-    float dimension;
-    int side;
+    float x;          
+    float y;
+    float z; 
+    float hauteur;
+    float largeur;
 } Mur;
+
+
 
 void drawTunnel();
 void drawRaquette(double x, double z);
 void drawBall(const Ball& ball);
 void updateBall(Ball& ball, float deltaTime,float mouseY, float mouseZ);
+void drawMur(Mur mur);
 
 extern Ball myball;  // Déclare l'instance myBall de la structure Ball
+extern Mur mur;  // Déclare l'instance mur de la structure Mur
 
 #endif
-
