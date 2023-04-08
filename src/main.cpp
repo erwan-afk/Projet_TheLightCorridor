@@ -80,7 +80,7 @@ void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 			     double xpos, ypos;	theta += 5;
 				break;
 			case GLFW_KEY_SPACE :
-				start = true;
+				game_status = true;
 				break;
 			default:
 				std::cout << "Touche non gérée (" << key << ")" << std::endl;
@@ -161,14 +161,21 @@ int main() {
 		setCamera(); 
 
 		/* Initial scenery setup */
+		
+		//drawTunnel_base();
+		drawTunnel(tunnel);
 		drawBall(myball);
-		drawTunnel();
 		//drawMur(mur);
 		drawRaquette(x,y); 
 		
 		
 		//utiliser le temps écoulé pour mettre à jour la position de la balle
-		updateBall(myball, deltaTime,x, y);
+		if (game_status)
+		{
+			updateBall(myball, deltaTime,x, y);
+		}
+		
+		
 		
 
 		

@@ -8,6 +8,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <iostream>
+#include <string>
+
+using namespace std;
 
 typedef struct Ball{
     float x;          // position en x
@@ -22,20 +26,26 @@ typedef struct Ball{
 typedef struct Mur{
     float x;          
     float y;
-    float z; 
+    float z;
+
     float hauteur;
-    float largeur;
+    float profondeur;
+    
+    string axe; 
+    float orientation;
 } Mur;
 
 
 
-void drawTunnel();
+void drawTunnel_base();
 void drawRaquette(double x, double z);
 void drawBall(const Ball& ball);
 void updateBall(Ball& ball, float deltaTime,float mouseY, float mouseZ);
 void drawMur(Mur mur);
+void drawTunnel(Mur tunnel[]);
 
 extern Ball myball;  // Déclare l'instance myBall de la structure Ball
 extern Mur mur;  // Déclare l'instance mur de la structure Mur
-
+extern Mur tunnel[]; // Déclare l'instance tunnel[] de la structure Mur
+extern bool game_status;
 #endif

@@ -3,7 +3,7 @@
 /* Camera parameters and functions */
 float theta = 0.0f; // Angle between x axis and viewpoint
 float phy = 90.0f; // Angle between z axis and viewpoint
-float dist_zoom = 20.0f; // Distance between origin and viewpoint
+float dist_zoom = 40.0f; // Distance between origin and viewpoint
 
 
 
