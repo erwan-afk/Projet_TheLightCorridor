@@ -30,10 +30,21 @@ typedef struct Mur{
 
     float hauteur;
     float profondeur;
+<<<<<<< HEAD
     
+=======
+
+   
+>>>>>>> main
     string axe; 
     float orientation;
 } Mur;
+
+typedef struct vect{
+    float x; 
+    float y; 
+    float z; 
+}vect; 
 
 
 

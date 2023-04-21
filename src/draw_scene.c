@@ -1,4 +1,3 @@
-
 #include "draw_scene.h"
 #include "3D_tools.h"
 
@@ -14,12 +13,19 @@ const float coefRaquette = 5.0;
 float xGraph = 0.0;
 float yGraph = 0.0; 
 
+<<<<<<< HEAD
 Ball myball = { 0.0f, 0.0f, 0.0f, 0.3f, 50.0f, 0.0f };
 int sensX = 1;
 int sensY = 1;
 int sensZ = 1;
 
 bool game_status = true;
+=======
+Ball myball = { 0.0f, 0.0f, 0.0f, 1.0f, 50.0f, 0.0f, 0.0f };
+
+bool game_status = false;
+
+>>>>>>> main
 
 void drawTunnel_base() {
     glPushMatrix();
@@ -75,14 +81,19 @@ void drawBall(const Ball& ball){
 
     glPushMatrix();
     glTranslatef(-ball.x,ball.y,ball.z);
-    glColor3f(1.0,0.0,0.0);
+    if(ball.z < -(hauteur/2)|| ball.y < -(largeur/2)){
+        glColor3f(0.0,1.0,0.0);
+    }else {
+        glColor3f(1.0,0.0,0.0);
+    }
     drawSphere();
     glPopMatrix();
 }
 
 void updateBall(Ball& ball, float deltaTime,float mouseY, float mouseZ) {
-  // Met à jour la position de la balle en fonction de sa vitesse
+  // Met à jotrueur la position de la balle en fonction de sa vitesse
  // Prendre le temps écoulé en argument et mette à jour la position de la balle en fonction de celui-ci
+<<<<<<< HEAD
     
 
     if (ball.x+3.0f > profondeur){
@@ -101,13 +112,33 @@ void updateBall(Ball& ball, float deltaTime,float mouseY, float mouseZ) {
     }
     if (ball.y+3.0f < -largeur/2){
         sensY = 1;
+=======
+
+    
+    if (ball.z-ball.radius < -(hauteur/2) && ball.speedZ < 0 || ball.z+ball.radius > (hauteur/2) && ball.speedZ > 0){
+        ball.speedZ = -ball.speedZ;
     }
+     if ((ball.y-ball.radius < -(largeur/2) && ball.speedY < 0 ) || (ball.y+ball.radius > (largeur/2) && ball.speedY > 0)){
+        ball.speedY = -ball.speedY;
+    }
+    if (ball.x+ball.radius > (profondeur) && ball.speedX > 0){
+        ball.speedX = -ball.speedX;
+>>>>>>> main
+    }
+  
 
 
     float square_size = 6.0f;
 
+<<<<<<< HEAD
+    float square_size = 6.0f;
+
     if (ball.x < (0.0f + 3.0f)){
 
+=======
+    if (ball.x < (0.0f)){
+
+>>>>>>> main
     std::cout << "y:"<< mouseY << std::endl;
     std::cout << "z:"<< mouseZ << std::endl;
 
@@ -122,9 +153,16 @@ void updateBall(Ball& ball, float deltaTime,float mouseY, float mouseZ) {
             //float distance = sqrt(pow((mouseZ - ball.y),2) + pow((mouseY - ball.z),2));
             //float distance_x = ball.x - (mouseY + square_size/2.0f);
             //float distance_y = ball.y - (mouseZ + square_size/2.0f);
+            if (ball.x-ball.radius < (0) && ball.speedX < 0  ){
+                ball.speedX = -ball.speedX;
+            }
             
+<<<<<<< HEAD
             
             sensX = 1;
+=======
+      
+>>>>>>> main
             // sensY = 1;
             // sensZ = 1;
 
@@ -135,6 +173,10 @@ void updateBall(Ball& ball, float deltaTime,float mouseY, float mouseZ) {
             std::cout << "speedY :"<< ball.speedY << "speedZ :" << ball.speedZ <<std::endl;
         }else{
             game_status = false;
+<<<<<<< HEAD
+=======
+
+>>>>>>> main
         }
         /*
         if (ball.y >= mouseY && ball.y <= mouseY + 2.0f && ball.z >= mouseZ && ball.z <= mouseZ + 2.0f) {
@@ -146,6 +188,7 @@ void updateBall(Ball& ball, float deltaTime,float mouseY, float mouseZ) {
         */
         //sens = 1;
     }
+<<<<<<< HEAD
     
 
     if (sensX == 1)
@@ -175,6 +218,14 @@ void updateBall(Ball& ball, float deltaTime,float mouseY, float mouseZ) {
     
 
 
+=======
+    ball.x += ball.speedX * deltaTime;
+    ball.y += ball.speedY * deltaTime;
+    ball.z += ball.speedZ * deltaTime;
+    
+
+
+>>>>>>> main
 }
 
 //Mur mur = {-profondeur/2,0.0,-(hauteur/2),largeur,0.0,profondeur,"x",0.0};
@@ -241,4 +292,10 @@ void drawTunnel(Mur tunnel[]) {
             glColor3f(0.0,0.0,0.9);
             drawSquare();
         glPopMatrix();
+<<<<<<< HEAD
 */
+=======
+*/
+
+
+>>>>>>> main

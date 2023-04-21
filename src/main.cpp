@@ -170,7 +170,11 @@ int main() {
 		
 		
 		//utiliser le temps écoulé pour mettre à jour la position de la balle
+<<<<<<< HEAD
 		if (game_status)
+=======
+		if (game_status == true)
+>>>>>>> main
 		{
 			updateBall(myball, deltaTime,x, y);
 		}
