@@ -30,33 +30,43 @@ typedef struct Mur{
 
     float hauteur;
     float profondeur;
-<<<<<<< HEAD
-    
-=======
 
    
->>>>>>> main
     string axe; 
     float orientation;
 } Mur;
 
-typedef struct vect{
-    float x; 
-    float y; 
-    float z; 
-}vect; 
+struct Button {
+    float y;     // position y
+    float z;     // position z
+    float width; // largeur
+    float height;// hauteur
+};
+
 
 
 
 void drawTunnel_base();
-void drawRaquette(double x, double z);
+void drawRaquette(double y, double z);
 void drawBall(const Ball& ball);
 void updateBall(Ball& ball, float deltaTime,float mouseY, float mouseZ);
 void drawMur(Mur mur);
 void drawTunnel(Mur tunnel[]);
+void stickyBall(Ball& ball,float mouseY, float mouseZ);
+
+void drawMenu();
 
 extern Ball myball;  // Déclare l'instance myBall de la structure Ball
 extern Mur mur;  // Déclare l'instance mur de la structure Mur
 extern Mur tunnel[]; // Déclare l'instance tunnel[] de la structure Mur
 extern bool game_status;
+
+
+extern Button button1;
+extern Button button2;
+extern Button button3;
+
+extern float profondeur;
+extern float hauteur;
+extern float largeur;
 #endif

@@ -4,7 +4,7 @@
 
 #include "3D_tools.h"
 #include "draw_scene.h"
-
+#include <vector>
 
 /* Window properties */
 static unsigned int WINDOW_WIDTH = 1000;
@@ -13,18 +13,204 @@ static const char WINDOW_TITLE[] = "The Light Corridor";
 static float aspectRatio = 1.0;
 static float focal = 60.0; 
 
-double x, y = 0.0; 
+float x_prev,y_prev = 0.0f;
+float x, y = 0.0; 
 
 /* Minimal time wanted between two images */
 static const double FRAMERATE_IN_SECONDS = 1. / 30.;
 
-/* IHM flag */
-static int flag_animate_rot_scale = 0;
-static int flag_animate_rot_arm = 0;
-
 bool start = false;
 double deltaTime = 0.0;
 
+int active_scene_index;
+
+
+class Config;
+
+class Scene {
+public:
+	virtual void execution(GLFWwindow* window, Config* config) = 0;
+};
+
+class Game : public Scene {
+public:
+
+	Game(Config* config) : m_config(config) {}
+	
+
+	static void cursor_position_callBack(GLFWwindow* window, double xpos, double ypos){
+  
+		//getting cursor position
+		glfwGetCursorPos(window, &xpos, &ypos);
+
+		x = ((xpos * 2 / WINDOW_WIDTH) - 1) * WINDOW_WIDTH / WINDOW_HEIGHT;
+		y = -((ypos * 2 / WINDOW_HEIGHT) - 1);
+
+		y = y*std::tan(((focal*M_PI)/180)/2) * dist_zoom;
+		x = x*std::tan(((focal*M_PI)/180)/2) * dist_zoom;
+
+		if(y > (hauteur/2) || y < -(hauteur/2) ){
+			y = y_prev;
+		}else {
+			y_prev = y;
+		}
+
+		if(x > (largeur/2) || x < -(largeur/2) ){
+			x = x_prev;
+		}else {
+			x_prev = x;
+		}
+
+	}
+
+    void execution(GLFWwindow* window, Config* config) override {
+
+		glfwSetCursorPosCallback(window, Game::cursor_position_callBack);
+
+		/* Cleaning buffers and setting Matrix Mode */
+		glClearColor(0.2,0.0,0.0,0.0);
+
+//		glEnable(GL_DEPTH_TEST);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		/* Initial scenery setup */
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+
+		setCamera(); 
+
+		//drawTunnel_base();
+		drawTunnel(tunnel);
+		
+
+			drawBall(myball);
+			//drawMur(mur);
+			drawRaquette(x,y); 
+		
+		
+		if (game_status == true)
+		{
+			updateBall(myball, deltaTime,x, y);
+		}else
+		{
+			stickyBall(myball,x, y);
+		}
+		
+		
+		glColor3f(1.0,1.0,1.0);
+		glBegin(GL_POINTS); // Démarre un groupe de points
+    	glVertex3f(0.0f, 0.0f, 0.0f); // Ajoute un point au milieu de l'écran
+    	glEnd(); // Termine le groupe de points 
+
+		/* Swap front and back buffers */
+		glfwSwapBuffers(window);
+
+		/* Poll for and process events */
+		glfwPollEvents();
+
+	}
+
+	private:
+  	Config* m_config;
+};
+
+
+
+class Menu : public Scene {	
+public:
+
+	Menu(Config* config) : m_config(config) {}
+
+	void execution(GLFWwindow* window, Config* config) override {
+
+		double xpos, ypos;
+		int left_button_state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+		if (left_button_state == GLFW_PRESS) {
+			glfwGetCursorPos(window, &xpos, &ypos);
+			// Traiter le clic ici en utilisant les coordonnées xpos et ypos
+
+			x = ((xpos * 2 / WINDOW_WIDTH) - 1) * WINDOW_WIDTH / WINDOW_HEIGHT;
+			y = -((ypos * 2 / WINDOW_HEIGHT) - 1);
+
+			y = y*std::tan(((focal*M_PI)/180)/2) * dist_zoom;
+			x = x*std::tan(((focal*M_PI)/180)/2) * dist_zoom;
+
+			if (x >= -button1.width/2 && x <= button1.width/2 && y >= button1.z - button1.height/2 && y <= button1.z + button1.height/2) {
+				// Clic sur le premier bouton
+				// Traiter le clic ici
+				std::cout << "Jouer" << std::endl;
+				active_scene_index = 1;
+				
+			} else if (x >= -button2.width/2 && x <= button2.width/2 && y >= button2.z - button2.height/2 && y <= button2.z + button2.height/2) {
+				// Clic sur le deuxième bouton
+				// Traiter le clic ici
+				std::cout << "Niveau" << std::endl;
+			} else if (x >= -button3.width/2 && x <= button3.width/2 && y >= button3.z - button3.height/2 && y <= button3.z + button3.height/2) {
+				// Clic sur le troisième bouton
+				// Traiter le clic ici
+				std::cout << "Quitter" << std::endl;
+				glfwSetWindowShouldClose(window, GLFW_TRUE);
+			}
+		}
+
+		/* Cleaning buffers and setting Matrix Mode */
+		glClearColor(0.2,0.0,0.0,0.0);
+
+//		glEnable(GL_DEPTH_TEST);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		/* Initial scenery setup */
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		setCamera();
+
+		drawMenu();
+		
+		glColor3f(1.0,1.0,1.0);
+		glBegin(GL_POINTS); // Démarre un groupe de points
+    	glVertex3f(0.0f, 0.0f, 0.0f); // Ajoute un point au milieu de l'écran
+    	glEnd(); // Termine le groupe de points 
+
+		/* Swap front and back buffers */
+		glfwSwapBuffers(window);
+
+		/* Poll for and process events */
+		glfwPollEvents();
+
+	}
+	
+	private:
+  	Config* m_config;
+};
+
+
+class Config {
+public:
+  std::vector<Scene*> scenes;
+  
+  // autres propriétés de configuration
+
+  Config() {
+    // initialisation des scènes
+    scenes.push_back(new Menu(this));
+    scenes.push_back(new Game(this));
+    // ajouter d'autres scènes ici
+
+	active_scene_index = 0;
+  }
+
+  ~Config() {
+    // libération de la mémoire allouée pour les scènes
+    for (auto scene : scenes) {
+      delete scene;
+    }
+  }
+
+  void executeActiveScene(GLFWwindow* window) {
+    if (active_scene_index >= 0 && active_scene_index < scenes.size()) {
+      scenes[active_scene_index]->execution(window, this);
+    }
+  }
+
+};
 
 
 
@@ -45,8 +231,6 @@ void onWindowResized(GLFWwindow* window, int width, int height)
 
 	WINDOW_HEIGHT = height;
 	WINDOW_WIDTH = width;
-	
-
 
 }
 
@@ -56,19 +240,13 @@ void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 		switch(key) {
 			case GLFW_KEY_A :
 			case GLFW_KEY_ESCAPE :
-				glfwSetWindowShouldClose(window, GLFW_TRUE);
+				active_scene_index = 0;
 				break;
 			case GLFW_KEY_L :
 				glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
 				break;
 			case GLFW_KEY_P :
 				glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
-				break;
-			case GLFW_KEY_R :
-				flag_animate_rot_arm = 1-flag_animate_rot_arm;
-				break;
-			case GLFW_KEY_T :
-				flag_animate_rot_scale = 1-flag_animate_rot_scale;
 				break;
 			case GLFW_KEY_KP_9 :
 				if(dist_zoom<100.0f) dist_zoom*=1.1;
@@ -80,7 +258,9 @@ void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 			     double xpos, ypos;	theta += 5;
 				break;
 			case GLFW_KEY_SPACE :
-				game_status = true;
+				if(y < (hauteur/2) && x < (largeur/2) && y > -(hauteur/2) && x > -(largeur/2)){
+					game_status = true;
+				}
 				break;
 			default:
 				std::cout << "Touche non gérée (" << key << ")" << std::endl;
@@ -88,20 +268,7 @@ void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 	}
 }
 
-void cursor_position_callBack(GLFWwindow* window, double xpos, double ypos){
-  
-     //getting cursor position
-     glfwGetCursorPos(window, &xpos, &ypos);
-
-    x = ((xpos * 2 / WINDOW_WIDTH) - 1) * WINDOW_WIDTH / WINDOW_HEIGHT;
-    y = -((ypos * 2 / WINDOW_HEIGHT) - 1);
-
-	y = y*std::tan(((focal*M_PI)/180)/2) * dist_zoom;
-	x = x*std::tan(((focal*M_PI)/180)/2) * dist_zoom;
-
-    }
-
-
+Config config;
 
 int main() {
     // Initialize the library
@@ -126,77 +293,26 @@ int main() {
         glfwTerminate();
         return -1;
     }
-
     // Make the window's context current		glEnable(GL_DEPTH_TEST);
-
     glfwMakeContextCurrent(window);
-
     glfwSetWindowSizeCallback(window,onWindowResized);
 	glfwSetKeyCallback(window, onKey);
-
-	glfwSetCursorPosCallback(window, cursor_position_callBack);
-
     onWindowResized(window,WINDOW_WIDTH,WINDOW_HEIGHT);
-	
+
+
+
 	/* Get time (in second) at loop beginning */
 	double startTime = glfwGetTime();
-
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
 	{
-		
 		//au début de la boucle, calculer le temps écoulé depuis la dernière image :
 		double currentTime = glfwGetTime();
 		deltaTime = currentTime - startTime;
 		startTime = currentTime;
 
-		/* Cleaning buffers and setting Matrix Mode */
-		glClearColor(0.2,0.0,0.0,0.0);
-
-//		glEnable(GL_DEPTH_TEST);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-		setCamera(); 
-
-		/* Initial scenery setup */
-		
-		//drawTunnel_base();
-		drawTunnel(tunnel);
-		drawBall(myball);
-		//drawMur(mur);
-		drawRaquette(x,y); 
-		
-		
-		//utiliser le temps écoulé pour mettre à jour la position de la balle
-<<<<<<< HEAD
-		if (game_status)
-=======
-		if (game_status == true)
->>>>>>> main
-		{
-			updateBall(myball, deltaTime,x, y);
-		}
-		
-		
-		
-
-		
-		glColor3f(1.0,1.0,1.0);
-		glBegin(GL_POINTS); // Démarre un groupe de points
-    	glVertex3f(0.0f, 0.0f, 0.0f); // Ajoute un point au milieu de l'écran
-    	glEnd(); // Termine le groupe de points
-		
-
-
-		/* Scene rendering */
-
-		/* Swap front and back buffers */
-		glfwSwapBuffers(window);
-
-		/* Poll for and process events */
-		glfwPollEvents();
+		//activateScene(window);
+		config.executeActiveScene(window);
 
 		/* Elapsed time computation from loop begining */
 		double elapsedTime = glfwGetTime() - startTime;
