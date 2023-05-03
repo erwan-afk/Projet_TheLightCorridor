@@ -260,7 +260,7 @@ void drawScore(int score, GLuint* textures) {
 
     // Calculer la position x, y et z du bouton
     float x = 0.0f;
-    float y = -15.0f;
+    float y = 0.0f;
     float z = -15.0f;
 
     // Dessiner chaque chiffre de la chaîne de caractères
@@ -284,6 +284,20 @@ void drawScore(int score, GLuint* textures) {
     }
 }
 
+void drawLives(int lives,GLuint texture) {
+    // Calculer la position x, y et z de la première sphère
+    float x = 0.0f;
+    float y = -15.0f;
+    float z = -15.0f;
+
+    // Dessiner chaque sphère correspondant à une vie
+    for (int i = 0; i < lives; i++) {
+        glPushMatrix();
+        glTranslatef(x, y + i * 3.0f, z);
+        drawSphere(texture);
+        glPopMatrix();
+    }
+}
 
 
 

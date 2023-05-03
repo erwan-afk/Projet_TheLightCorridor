@@ -56,6 +56,7 @@ void stickyBall(Ball& ball,float mouseY, float mouseZ);
 void drawButton(Button button);
 void drawMenu(GLuint texture1,GLuint texture2,GLuint texture3);
 void drawScore(int score, GLuint* textures);
+void drawLives(int lives,GLuint texture);
 
 extern Ball myball;  // Déclare l'instance myBall de la structure Ball
 extern Mur mur;  // Déclare l'instance mur de la structure Mur

@@ -130,6 +130,8 @@ public:
 		drawRaquette(x,y); 
 
 		drawScore(150344, textures_nombre);
+
+		drawLives(3,texture_ball);
 		
 		
 		if (game_status == true)
