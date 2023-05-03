@@ -37,7 +37,7 @@ void drawCircle();
 
 void drawCone();
 
-void drawSphere();
+void drawSphere(GLuint texture);
 
 /* Small tools */
 float toRad(float deg);

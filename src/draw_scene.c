@@ -57,8 +57,6 @@ void drawTunnel_base() {
 
 void drawRaquette(double y, double z) {
 
-    
-
         glPushMatrix();
         glColor3f(1.0,1.0,1.0); 
         glTranslatef(0.0,y,z);
@@ -71,25 +69,20 @@ void drawRaquette(double y, double z) {
         glEnd();
     glPopMatrix();
 
-        
-        
-   
-    
-    
-
 }
 
-void drawBall(const Ball& ball){
+void drawBall(const Ball& ball,GLuint texture){
 
     glPushMatrix();
     glTranslatef(-ball.x,ball.y,ball.z);
-    if(ball.z < (hauteur/2) && ball.y < (largeur/2) && ball.z > -(hauteur/2) && ball.y > -(largeur/2)){
-        glColor3f(1.0,0.0,0.0);
-    }else {
-        glColor3f(0.0,1.0,0.0);
+    // if(ball.z < (hauteur/2) && ball.y < (largeur/2) && ball.z > -(hauteur/2) && ball.y > -(largeur/2)){
+    //     glColor3f(1.0,0.0,0.0);
+    // }else {
+    //     glColor3f(0.0,1.0,0.0);
         
-    }
-    drawSphere();
+    // }
+    
+    drawSphere(texture);
     glPopMatrix();
 }
 
@@ -211,6 +204,8 @@ void drawMur(Mur mur) {
 
 void drawTunnel(Mur tunnel[]) {
 
+
+
     for (int i = 0; i < 4; i++)
     {   
         if (i%2 ==0)
@@ -222,6 +217,8 @@ void drawTunnel(Mur tunnel[]) {
         }
         drawMur(tunnel[i]);
     }
+
+    
     
 }
 
@@ -229,9 +226,10 @@ Button button1 = {0.0f, 12.0f, 30.0f, 10.0f};
 Button button2 = {0.0f, 0.0f, 30.0f, 10.0f};
 Button button3 = {0.0f, -12.0f, 30.0f, 10.0f};
 
+
+
 void drawButton(Button button) {
     glPushMatrix();
-        glColor3f(0.0f, 1.0f, 0.0f);
         glTranslatef(0.0f, button.y, button.z);
         glRotatef(90.0, 0.0, 1.0, 0.0); 
         glScalef(10.0f, 30.0f, 1.0f);
@@ -239,12 +237,58 @@ void drawButton(Button button) {
     glPopMatrix();
 }
 
-void drawMenu() {
-    
+void drawMenu(GLuint texture1,GLuint texture2,GLuint texture3) {
+
+    glEnable(GL_TEXTURE_2D);
+
+	glBindTexture(GL_TEXTURE_2D, texture1);
     drawButton(button1);
+
+    glBindTexture(GL_TEXTURE_2D, texture2);
     drawButton(button2);
+
+    glBindTexture(GL_TEXTURE_2D, texture3);
     drawButton(button3);
+
+    glDisable(GL_TEXTURE_2D);
+    
 }
+
+void drawScore(int score, GLuint* textures) {
+    // Convertir le score en chaîne de caractères
+    std::string score_str = std::to_string(score);
+
+    // Calculer la position x, y et z du bouton
+    float x = 0.0f;
+    float y = -15.0f;
+    float z = -15.0f;
+
+    // Dessiner chaque chiffre de la chaîne de caractères
+    for (int i = 0; i < score_str.size(); i++) {
+        // Récupérer le chiffre en tant qu'entier
+        int digit = score_str[i] - '0';
+
+        // Dessiner le chiffre correspondant en utilisant la texture appropriée
+		glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, textures[digit]);
+        glPushMatrix();
+            glTranslatef(x, y, z);
+            glRotatef(90.0, 0.0, 1.0, 0.0); 
+            glScalef(4.0f, 2.5f, 1.0f);
+            drawSquare();
+        glPopMatrix();
+		glDisable(GL_TEXTURE_2D);
+
+        // Déplacer le curseur de dessin vers la droite pour le prochain chiffre
+        y += 2.5f;
+    }
+}
+
+
+
+
+
+
 
     // Titre du menu
     /*

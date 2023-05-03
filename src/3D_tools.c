@@ -20,11 +20,17 @@ float toRad(float deg) {
 
 
 void drawSquare() {
+	
 	glBegin(GL_TRIANGLE_FAN);
-		glVertex3f(-0.5,-0.5,0.0);
+		glTexCoord2f(0, 0);
 		glVertex3f(0.5,-0.5,0.0);
+		glTexCoord2f(1, 0);
 		glVertex3f(0.5,0.5,0.0);
+		glTexCoord2f(1, 1);
 		glVertex3f(-0.5,0.5,0.0);
+		glTexCoord2f(0, 1);
+		glVertex3f(-0.5,-0.5,0.0);
+
 	glEnd();
 }
 
@@ -48,6 +54,17 @@ void drawCone() {
 	glEnd();
 }
 
-void drawSphere() {
-	gluSphere(gluNewQuadric(),1.0,NB_SEG_CIRCLE,NB_SEG_CIRCLE);
+void drawSphere(GLuint texture) {
+	GLUquadric* sphere = gluNewQuadric();
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, texture);
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    gluQuadricTexture(sphere, GL_TRUE);
+    gluQuadricNormals(sphere, GLU_SMOOTH);
+
+    glPushMatrix();
+    gluSphere(sphere, 1.0f, 32, 32);
+    glPopMatrix();
+
+    glDisable(GL_TEXTURE_2D);
 }

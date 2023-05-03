@@ -1,10 +1,58 @@
 #define GLFW_INCLUDE_NONE
 #include "GLFW/glfw3.h"
+
+
 #include <iostream>
 
 #include "3D_tools.h"
 #include "draw_scene.h"
+
 #include <vector>
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
+int x_image;
+int y_image;
+int n_image;
+
+GLuint jouer;
+GLuint niveaux;
+GLuint quiter;
+GLuint textures_nombre[10];
+GLuint texture_ball;
+
+
+GLuint load_texture(const std::string& file_path) {
+    stbi_set_flip_vertically_on_load(true); // inverse verticalement l'image chargée
+    unsigned char* tab = stbi_load(file_path.c_str(), &x_image, &y_image, &n_image, 0);
+
+    GLuint texture_id;
+    glGenTextures(1, &texture_id); // génère un identifiant de texture unique
+    glBindTexture(GL_TEXTURE_2D, texture_id); // associe l'identifiant de texture à la texture active
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, x_image, y_image, 0, GL_RGB, GL_UNSIGNED_BYTE, tab);
+    stbi_image_free(tab);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    return texture_id;
+}
+
+void init_texture(){
+    jouer = load_texture("../textures/jouer.jpg");
+    niveaux = load_texture("../textures/niveaux.jpg");
+    quiter = load_texture("../textures/quiter.jpg");
+
+	texture_ball = load_texture("../textures/metal.jpg");
+
+	for(int i = 0; i < 10; i++) {
+		std::string chemin = "../textures/numbers/" + std::to_string(i) + ".jpg";
+		textures_nombre[i] = load_texture(chemin);
+	}
+
+	
+}
+
+
 
 /* Window properties */
 static unsigned int WINDOW_WIDTH = 1000;
@@ -25,6 +73,8 @@ double deltaTime = 0.0;
 int active_scene_index;
 
 
+
+
 class Config;
 
 class Scene {
@@ -37,9 +87,8 @@ public:
 
 	Game(Config* config) : m_config(config) {}
 	
-
-	static void cursor_position_callBack(GLFWwindow* window, double xpos, double ypos){
-  
+    void execution(GLFWwindow* window, Config* config) override {
+		double xpos, ypos;
 		//getting cursor position
 		glfwGetCursorPos(window, &xpos, &ypos);
 
@@ -61,12 +110,6 @@ public:
 			x_prev = x;
 		}
 
-	}
-
-    void execution(GLFWwindow* window, Config* config) override {
-
-		glfwSetCursorPosCallback(window, Game::cursor_position_callBack);
-
 		/* Cleaning buffers and setting Matrix Mode */
 		glClearColor(0.2,0.0,0.0,0.0);
 
@@ -82,9 +125,11 @@ public:
 		drawTunnel(tunnel);
 		
 
-			drawBall(myball);
-			//drawMur(mur);
-			drawRaquette(x,y); 
+		drawBall(myball,texture_ball);
+		//drawMur(mur);
+		drawRaquette(x,y); 
+
+		drawScore(150344, textures_nombre);
 		
 		
 		if (game_status == true)
@@ -120,7 +165,7 @@ public:
 
 	Menu(Config* config) : m_config(config) {}
 
-	void execution(GLFWwindow* window, Config* config) override {
+	void execution(GLFWwindow* window, Config* config) override {	
 
 		double xpos, ypos;
 		int left_button_state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
@@ -162,7 +207,9 @@ public:
 		glLoadIdentity();
 		setCamera();
 
-		drawMenu();
+		
+		drawMenu(jouer,niveaux,quiter);
+
 		
 		glColor3f(1.0,1.0,1.0);
 		glBegin(GL_POINTS); // Démarre un groupe de points
@@ -268,6 +315,9 @@ void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 	}
 }
 
+
+
+
 Config config;
 
 int main() {
@@ -299,7 +349,7 @@ int main() {
 	glfwSetKeyCallback(window, onKey);
     onWindowResized(window,WINDOW_WIDTH,WINDOW_HEIGHT);
 
-
+	init_texture();
 
 	/* Get time (in second) at loop beginning */
 	double startTime = glfwGetTime();
@@ -311,8 +361,19 @@ int main() {
 		deltaTime = currentTime - startTime;
 		startTime = currentTime;
 
+		/* Cleaning buffers and setting Matrix Mode */
+		glClearColor(0.2,0.0,0.0,0.0);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+
+		/* RENDER HERE */
+
+
 		//activateScene(window);
 		config.executeActiveScene(window);
+
 
 		/* Elapsed time computation from loop begining */
 		double elapsedTime = glfwGetTime() - startTime;

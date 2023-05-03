@@ -48,13 +48,14 @@ struct Button {
 
 void drawTunnel_base();
 void drawRaquette(double y, double z);
-void drawBall(const Ball& ball);
+void drawBall(const Ball& ball,GLuint texture);
 void updateBall(Ball& ball, float deltaTime,float mouseY, float mouseZ);
 void drawMur(Mur mur);
 void drawTunnel(Mur tunnel[]);
 void stickyBall(Ball& ball,float mouseY, float mouseZ);
-
-void drawMenu();
+void drawButton(Button button);
+void drawMenu(GLuint texture1,GLuint texture2,GLuint texture3);
+void drawScore(int score, GLuint* textures);
 
 extern Ball myball;  // Déclare l'instance myBall de la structure Ball
 extern Mur mur;  // Déclare l'instance mur de la structure Mur
@@ -69,4 +70,6 @@ extern Button button3;
 extern float profondeur;
 extern float hauteur;
 extern float largeur;
+
+
 #endif

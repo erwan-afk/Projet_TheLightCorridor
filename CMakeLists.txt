@@ -42,6 +42,9 @@ set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAK
 configure_file(src/helpers/RootDir.hpp.in src/helpers/RootDir.hpp)
 include_directories(${CMAKE_BINARY_DIR}/src)
 
+# Disable search for Freetype
+set(FREETYPE_LIBRARIES "")
+
 # Librairies
 # ---Add GLFW---
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
@@ -55,3 +58,4 @@ target_link_libraries(${PROJECT_NAME} PUBLIC glfw)
 find_package(OpenGL REQUIRED)
 message(STATUS "OpenGL libraries : ${OPENGL_LIBRARIES}")
 target_link_libraries(${PROJECT_NAME} PRIVATE ${OPENGL_LIBRARIES})
+
