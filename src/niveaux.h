@@ -29,6 +29,8 @@ typedef struct Bonus{
     float z;
 
     int forme;
+    int SpeedRotation;
+    int angle;
     
 };
 

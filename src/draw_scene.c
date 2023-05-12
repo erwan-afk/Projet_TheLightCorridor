@@ -486,6 +486,8 @@ void drawObstacle(vector<Obstacle> obstacles){
         
 }
 
+
+
 void drawBonus(vector<Bonus> Bonus){
 
      for (int i = 0; i < Bonus.size(); i++)
@@ -495,10 +497,13 @@ void drawBonus(vector<Bonus> Bonus){
             glPushMatrix();
                 glTranslatef(Bonus[i].x, Bonus[i].y, Bonus[i].z);
                     glColor3f(1.0,1.0,1.0);
+                    glRotatef(Bonus[i].angle+Bonus[i].SpeedRotation,1.0,0.5,0.0);
                     glScalef(3.0, 3.0,3.0);
                     drawCube();  
             glPopMatrix();
+            Bonus[i].angle++;
         }
+        
         
        
     }
