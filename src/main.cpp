@@ -7,10 +7,25 @@
 #include "3D_tools.h"
 #include "draw_scene.h"
 
+
 #include <vector>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+
+#include <fstream>
+#include <sstream>
+
+//#include "config.h"
+
+/* Window properties */
+extern unsigned int WINDOW_WIDTH = 1000;
+extern unsigned int WINDOW_HEIGHT = 1000;
+extern const char WINDOW_TITLE[] = "The Light Corridor";
+extern float aspectRatio = 1.0;
+extern float focal = 60.0; 
+extern const double FRAMERATE_IN_SECONDS = 1. / 30.;
+double deltaTime = 0.0;
 
 int x_image;
 int y_image;
@@ -21,7 +36,7 @@ GLuint niveaux;
 GLuint quiter;
 GLuint textures_nombre[10];
 GLuint texture_ball;
-
+GLuint texture_mur;
 
 GLuint load_texture(const std::string& file_path) {
     stbi_set_flip_vertically_on_load(true); // inverse verticalement l'image chargée
@@ -43,6 +58,7 @@ void init_texture(){
     quiter = load_texture("../textures/quiter.jpg");
 
 	texture_ball = load_texture("../textures/metal.jpg");
+	texture_mur = load_texture("../textures/mur.jpg");
 
 	for(int i = 0; i < 10; i++) {
 		std::string chemin = "../textures/numbers/" + std::to_string(i) + ".jpg";
@@ -53,29 +69,29 @@ void init_texture(){
 }
 
 
+class Scene;
 
-/* Window properties */
-static unsigned int WINDOW_WIDTH = 1000;
-static unsigned int WINDOW_HEIGHT = 1000;
-static const char WINDOW_TITLE[] = "The Light Corridor";
-static float aspectRatio = 1.0;
-static float focal = 60.0; 
+class Config {
+public:
+	/*Parametre de scenes*/
+	std::vector<Scene*> scenes;
+	int score = 0;
+	int vies = 5;
+	int active_scene_index = 0;
 
-float x_prev,y_prev = 0.0f;
-float x, y = 0.0; 
-
-/* Minimal time wanted between two images */
-static const double FRAMERATE_IN_SECONDS = 1. / 30.;
-
-bool start = false;
-double deltaTime = 0.0;
-
-int active_scene_index;
+	/*Variable de jeu*/
+	float x_prev,y_prev = 0.0f;
+	float x, y = 0.0; 
+	bool start = false;
 
 
 
+	Config();
+	~Config();
 
-class Config;
+	void executeActiveScene(GLFWwindow* window);
+
+};
 
 class Scene {
 public:
@@ -88,30 +104,32 @@ public:
 	Game(Config* config) : m_config(config) {}
 	
     void execution(GLFWwindow* window, Config* config) override {
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 		double xpos, ypos;
 		//getting cursor position
 		glfwGetCursorPos(window, &xpos, &ypos);
 
-		x = ((xpos * 2 / WINDOW_WIDTH) - 1) * WINDOW_WIDTH / WINDOW_HEIGHT;
-		y = -((ypos * 2 / WINDOW_HEIGHT) - 1);
+		m_config->x = ((xpos * 2 / WINDOW_WIDTH) - 1) * WINDOW_WIDTH / WINDOW_HEIGHT;
+		m_config->y = -((ypos * 2 / WINDOW_HEIGHT) - 1);
 
-		y = y*std::tan(((focal*M_PI)/180)/2) * dist_zoom;
-		x = x*std::tan(((focal*M_PI)/180)/2) * dist_zoom;
+		
+		m_config->y = m_config->y*std::tan(((focal*M_PI)/180)/2) * dist_zoom;
+		m_config->x = m_config->x*std::tan(((focal*M_PI)/180)/2) * dist_zoom;
 
-		if(y > (hauteur/2) || y < -(hauteur/2) ){
-			y = y_prev;
+		if(m_config->y > (hauteur/2) - raquette_radius || m_config->y < -(hauteur/2)+raquette_radius ){
+			m_config->y = m_config->y_prev;
 		}else {
-			y_prev = y;
+			m_config->y_prev = m_config->y;
 		}
 
-		if(x > (largeur/2) || x < -(largeur/2) ){
-			x = x_prev;
+		if(m_config->x > (largeur/2) - raquette_radius || m_config->x < -(largeur/2)+raquette_radius){
+			m_config->x = m_config->x_prev;
 		}else {
-			x_prev = x;
+			m_config->x_prev = m_config->x;
 		}
 
 		/* Cleaning buffers and setting Matrix Mode */
-		glClearColor(0.2,0.0,0.0,0.0);
+		
 
 //		glEnable(GL_DEPTH_TEST);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -122,24 +140,30 @@ public:
 		setCamera(); 
 
 		//drawTunnel_base();
-		drawTunnel(tunnel);
+		drawTunnel(tunnel,texture_mur);
+
+		
+		drawCorridor(deltaTime, 1); 
 		
 
-		drawBall(myball,texture_ball);
-		//drawMur(mur);
-		drawRaquette(x,y); 
+		// Dessiner la balle après avoir dessiné les obstacles
+		drawBall(myball, texture_ball);
 
-		drawScore(150344, textures_nombre);
+		drawRaquette(m_config->x, m_config->y);
 
-		drawLives(3,texture_ball);
+		
+
+		drawScore(m_config->score, textures_nombre);
+
+		drawLives(m_config->vies,texture_ball);
 		
 		
 		if (game_status == true)
 		{
-			updateBall(myball, deltaTime,x, y);
+			updateBall(myball, deltaTime,m_config->x, m_config->y);
 		}else
 		{
-			stickyBall(myball,x, y);
+			stickyBall(myball,m_config->x, m_config->y);
 		}
 		
 		
@@ -175,23 +199,23 @@ public:
 			glfwGetCursorPos(window, &xpos, &ypos);
 			// Traiter le clic ici en utilisant les coordonnées xpos et ypos
 
-			x = ((xpos * 2 / WINDOW_WIDTH) - 1) * WINDOW_WIDTH / WINDOW_HEIGHT;
-			y = -((ypos * 2 / WINDOW_HEIGHT) - 1);
+			m_config->x = ((xpos * 2 / WINDOW_WIDTH) - 1) * WINDOW_WIDTH / WINDOW_HEIGHT;
+			m_config->y = -((ypos * 2 / WINDOW_HEIGHT) - 1);
 
-			y = y*std::tan(((focal*M_PI)/180)/2) * dist_zoom;
-			x = x*std::tan(((focal*M_PI)/180)/2) * dist_zoom;
+			m_config->y = m_config->y*std::tan(((focal*M_PI)/180)/2) * dist_zoom;
+			m_config->x = m_config->x*std::tan(((focal*M_PI)/180)/2) * dist_zoom;
 
-			if (x >= -button1.width/2 && x <= button1.width/2 && y >= button1.z - button1.height/2 && y <= button1.z + button1.height/2) {
+			if (m_config->x >= -button1.width/2 && m_config->x <= button1.width/2 && m_config->y >= button1.z - button1.height/2 && m_config->y <= button1.z + button1.height/2) {
 				// Clic sur le premier bouton
 				// Traiter le clic ici
 				std::cout << "Jouer" << std::endl;
-				active_scene_index = 1;
+				m_config->active_scene_index = 1;
 				
-			} else if (x >= -button2.width/2 && x <= button2.width/2 && y >= button2.z - button2.height/2 && y <= button2.z + button2.height/2) {
+			} else if (m_config->x >= -button2.width/2 && m_config->x <= button2.width/2 && m_config->y >= button2.z - button2.height/2 && m_config->y <= button2.z + button2.height/2) {
 				// Clic sur le deuxième bouton
 				// Traiter le clic ici
 				std::cout << "Niveau" << std::endl;
-			} else if (x >= -button3.width/2 && x <= button3.width/2 && y >= button3.z - button3.height/2 && y <= button3.z + button3.height/2) {
+			} else if (m_config->x >= -button3.width/2 && m_config->x <= button3.width/2 && m_config->y >= button3.z - button3.height/2 && m_config->y <= button3.z + button3.height/2) {
 				// Clic sur le troisième bouton
 				// Traiter le clic ici
 				std::cout << "Quitter" << std::endl;
@@ -199,8 +223,8 @@ public:
 			}
 		}
 
-		/* Cleaning buffers and setting Matrix Mode */
-		glClearColor(0.2,0.0,0.0,0.0);
+		
+		
 
 //		glEnable(GL_DEPTH_TEST);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -231,35 +255,35 @@ public:
 };
 
 
-class Config {
-public:
-  std::vector<Scene*> scenes;
-  
-  // autres propriétés de configuration
+Config::Config() {
+  // initialisation des scènes
+  scenes.push_back(new Menu(this));
+  scenes.push_back(new Game(this));
+  // ajouter d'autres scènes ici
+}
 
-  Config() {
-    // initialisation des scènes
-    scenes.push_back(new Menu(this));
-    scenes.push_back(new Game(this));
-    // ajouter d'autres scènes ici
-
-	active_scene_index = 0;
+Config::~Config() {
+  // libération de la mémoire allouée pour les scènes
+  for (auto scene : scenes) {
+    delete scene;
   }
+}
 
-  ~Config() {
-    // libération de la mémoire allouée pour les scènes
-    for (auto scene : scenes) {
-      delete scene;
-    }
+void Config::executeActiveScene(GLFWwindow* window) {
+  if (active_scene_index >= 0 && active_scene_index < scenes.size()) {
+    scenes[active_scene_index]->execution(window, this);
   }
+}
 
-  void executeActiveScene(GLFWwindow* window) {
-    if (active_scene_index >= 0 && active_scene_index < scenes.size()) {
-      scenes[active_scene_index]->execution(window, this);
-    }
-  }
+Config config;
 
-};
+
+
+
+
+
+
+/* Minimal time wanted between two images */
 
 
 
@@ -283,13 +307,15 @@ void onWindowResized(GLFWwindow* window, int width, int height)
 
 }
 
+
+
 void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	if (action == GLFW_PRESS) {
 		switch(key) {
 			case GLFW_KEY_A :
 			case GLFW_KEY_ESCAPE :
-				active_scene_index = 0;
+				config.active_scene_index = 0;
 				break;
 			case GLFW_KEY_L :
 				glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
@@ -307,20 +333,27 @@ void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 			     double xpos, ypos;	theta += 5;
 				break;
 			case GLFW_KEY_SPACE :
-				if(y < (hauteur/2) && x < (largeur/2) && y > -(hauteur/2) && x > -(largeur/2)){
+				if(config.y < (hauteur/2) && config.x < (largeur/2) && config.y > -(hauteur/2) && config.x > -(largeur/2)){
 					game_status = true;
 				}
 				break;
+			case GLFW_KEY_UP :
+                run = true;
+                break;
 			default:
 				std::cout << "Touche non gérée (" << key << ")" << std::endl;
 		}
 	}
+	if (action == GLFW_RELEASE) {
+        switch(key) {
+            case GLFW_KEY_UP :
+                run = false;
+                break;
+            default:
+                std::cout << "Touche non gérée (" << key << ")" << std::endl;
+        }
+    }
 }
-
-
-
-
-Config config;
 
 int main() {
     // Initialize the library
@@ -345,13 +378,16 @@ int main() {
         glfwTerminate();
         return -1;
     }
-    // Make the window's context current		glEnable(GL_DEPTH_TEST);
+    // Make the window's context current		
+	
     glfwMakeContextCurrent(window);
     glfwSetWindowSizeCallback(window,onWindowResized);
 	glfwSetKeyCallback(window, onKey);
     onWindowResized(window,WINDOW_WIDTH,WINDOW_HEIGHT);
 
 	init_texture();
+
+	
 
 	/* Get time (in second) at loop beginning */
 	double startTime = glfwGetTime();
@@ -364,11 +400,13 @@ int main() {
 		startTime = currentTime;
 
 		/* Cleaning buffers and setting Matrix Mode */
-		glClearColor(0.2,0.0,0.0,0.0);
+		glClearColor(0.0,0.0,0.0,0.0);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
+
+		glEnable(GL_DEPTH_TEST);
 
 		/* RENDER HERE */
 

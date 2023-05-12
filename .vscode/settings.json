@@ -47,6 +47,7 @@
         "set": "cpp",
         "draw_scene.h": "c",
         "texture.h": "c",
-        "glfw3.h": "c"
+        "glfw3.h": "c",
+        "niveaux.h": "c"
     }
 }

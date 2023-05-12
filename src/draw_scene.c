@@ -1,9 +1,12 @@
 #include "draw_scene.h"
 #include "3D_tools.h"
+#include "niveaux.h"
 
+
+#include <vector>
 #include <iostream>
 
-float profondeur = 90.0;
+float profondeur = 180.0;
 float hauteur = 20.0;
 float largeur = 30.0;
 
@@ -17,43 +20,14 @@ Ball myball = { 0.0f, 0.0f, 0.0f, 1.0f, 50.0f, 0.0f, 0.0f };
 
 bool game_status = false;
 
+float raquette_radius = 3.0f;
 
+bool run = false;
+float espaceObstacle = 10.0f;
+float positionJoueur = 0.0f;
 
+float vitesse_joueur = 30.0f;
 
-void drawTunnel_base() {
-    glPushMatrix();
-        glTranslatef(-profondeur/2,0.0,-(hauteur/2));
-        glPushMatrix();
-            glTranslatef(0.0,0.0,0.0);
-            glScalef(profondeur,largeur,1.0);
-            glColor3f(0.0,0.0,0.5);
-            drawSquare();
-        glPopMatrix();
-
-        glPushMatrix();
-            glTranslatef(0.0,0.0,hauteur);
-            glScalef(profondeur,largeur,1.0);
-            glColor3f(0.0,0.0,0.5);
-            drawSquare();
-        glPopMatrix();
-
-        glPushMatrix();
-            glTranslatef(0.0,largeur/2,hauteur/2.0);
-            glRotatef(90,1.0,0.0,0.0);
-            glScalef(profondeur,hauteur,1.0);
-            glColor3f(0.0,0.0,0.9);
-            drawSquare();
-        glPopMatrix();
-
-        glPushMatrix();
-            glTranslatef(0.0,-largeur/2,hauteur/2.0);
-            glRotatef(90,1.0,0.0,0.0);
-            glScalef(profondeur,hauteur,1.0);
-            glColor3f(0.0,0.0,0.9);
-            drawSquare();
-        glPopMatrix();
-    glPopMatrix();
-}
 
 void drawRaquette(double y, double z) {
 
@@ -62,10 +36,10 @@ void drawRaquette(double y, double z) {
         glTranslatef(0.0,y,z);
         glRotatef(90.0,0.0,1.0,0.0); 
         glBegin(GL_LINE_LOOP);
-            glVertex3f(xGraph+3.0,yGraph+3.0,0.0);
-            glVertex3f(xGraph-3.0,yGraph+3.0,0.0);
-            glVertex3f(xGraph-3.0,yGraph-3.0,0.0);
-            glVertex3f(xGraph+3.0,yGraph-3.0,0.0);
+            glVertex3f(xGraph+raquette_radius,yGraph+raquette_radius,0.0);
+            glVertex3f(xGraph-raquette_radius,yGraph+raquette_radius,0.0);
+            glVertex3f(xGraph-raquette_radius,yGraph-raquette_radius,0.0);
+            glVertex3f(xGraph+raquette_radius,yGraph-raquette_radius,0.0);
         glEnd();
     glPopMatrix();
 
@@ -75,15 +49,20 @@ void drawBall(const Ball& ball,GLuint texture){
 
     glPushMatrix();
     glTranslatef(-ball.x,ball.y,ball.z);
-    // if(ball.z < (hauteur/2) && ball.y < (largeur/2) && ball.z > -(hauteur/2) && ball.y > -(largeur/2)){
-    //     glColor3f(1.0,0.0,0.0);
-    // }else {
-    //     glColor3f(0.0,1.0,0.0);
-        
-    // }
-    
+    glRotatef(-90,1.0,0.0,0.0);
+    glRotatef(90,0.0,1.0,0.0);
+    glScalef(1.3,1.3,1.3);
     drawSphere(texture);
     glPopMatrix();
+
+    glPushMatrix();
+    glColor3f(0.0,0.0,0.0);
+    glTranslatef(-ball.x-2,ball.y,-hauteur/2+0.1);
+    glScalef(abs((ball.z-hauteur/2)/hauteur)+1,abs((ball.z-hauteur/2)/hauteur)+1,abs((ball.z-hauteur/2)/hauteur)+1);
+    drawCircle();
+    glPopMatrix();
+
+
 }
 
 void updateBall(Ball& ball, float deltaTime,float mouseY, float mouseZ) {
@@ -100,6 +79,64 @@ void updateBall(Ball& ball, float deltaTime,float mouseY, float mouseZ) {
     if (ball.x+ball.radius > (profondeur) && ball.speedX > 0){
         ball.speedX = -ball.speedX;
     }
+
+
+/*LUGUBRE*/
+for (int i = 0; i < niveau1.Obstacles.size(); i++)
+{
+    for (int j = 0; j < niveau1.Obstacles[i].Panneaux.size(); j++)
+    {
+        if (ball.y + ball.radius >= (niveau1.Obstacles[i].Panneaux[j].y - niveau1.Obstacles[i].Panneaux[j].hauteur/2.0f) and
+            ball.y - ball.radius<= (niveau1.Obstacles[i].Panneaux[j].y + niveau1.Obstacles[i].Panneaux[j].hauteur/2.0f) and
+            ball.z + ball.radius >= (niveau1.Obstacles[i].Panneaux[j].z - niveau1.Obstacles[i].Panneaux[j].largeur/2.0f) and 
+            ball.z - ball.radius<= (niveau1.Obstacles[i].Panneaux[j].z + niveau1.Obstacles[i].Panneaux[j].largeur/2.0f))
+        {   
+            //std::cout << ball.speedX << endl;
+            if (ball.x + ball.radius >= -niveau1.Obstacles[i].Panneaux[j].x - niveau1.Obstacles[i].Panneaux[j].largeur / 2.0f && 
+                ball.x - ball.radius <= -niveau1.Obstacles[i].Panneaux[j].x + niveau1.Obstacles[i].Panneaux[j].largeur / 2.0f && ball.speedX > 0) {
+                ball.speedX = -ball.speedX;
+                ball.x = ball.x-1.0;
+                std::cout << "touché murx : " << -niveau1.Obstacles[i].Panneaux[j].x <<endl;
+
+                niveau1.Obstacles[i].Panneaux[j].impact = true;
+              
+                if (-niveau1.Obstacles[i].Panneaux[j].x < ball.x + ball.radius - 1.0)
+                {
+                    game_status = false;
+                    ball.speedY = 0; 
+                    ball.speedZ = 0; 
+                }
+                
+
+            }
+
+            else if (ball.x + ball.radius >= -niveau1.Obstacles[i].Panneaux[j].x - niveau1.Obstacles[i].Panneaux[j].largeur / 2.0f && 
+                ball.x - ball.radius <= -niveau1.Obstacles[i].Panneaux[j].x + niveau1.Obstacles[i].Panneaux[j].largeur / 2.0f && ball.speedX < 0) {
+                ball.speedX = -ball.speedX;
+                ball.x = ball.x+1.0;
+                std::cout << "touché sens inverse murx : " << -niveau1.Obstacles[i].Panneaux[j].x <<endl;
+                niveau1.Obstacles[i].Panneaux[j].impact = true;
+                if (-niveau1.Obstacles[i].Panneaux[j].x < ball.x + ball.radius + 1.0)
+                {
+                    game_status = false;
+                    ball.speedY = 0; 
+                    ball.speedZ = 0; 
+                }
+            }
+            
+            
+        }
+    }
+}
+
+
+
+
+
+     
+
+
+    
   
 
 
@@ -128,7 +165,7 @@ void updateBall(Ball& ball, float deltaTime,float mouseY, float mouseZ) {
       
             // sensY = 1;
             // sensZ = 1;
-
+            ball.x = ball.x+1.0;
             ball.speedY = (ball.y - mouseY)*coefRaquette; 
             ball.speedZ = (ball.z - mouseZ)*coefRaquette; 
             
@@ -136,6 +173,8 @@ void updateBall(Ball& ball, float deltaTime,float mouseY, float mouseZ) {
             std::cout << "speedY :"<< ball.speedY << "speedZ :" << ball.speedZ <<std::endl;
         }else{
             game_status = false;
+            ball.speedY = 0; 
+            ball.speedZ = 0; 
         }
         /*
         if (ball.y >= mouseY && ball.y <= mouseY + 2.0f && ball.z >= mouseZ && ball.z <= mouseZ + 2.0f) {
@@ -147,9 +186,20 @@ void updateBall(Ball& ball, float deltaTime,float mouseY, float mouseZ) {
         */
         //sens = 1;
     }
-    ball.x += ball.speedX * deltaTime;
+
+    
     ball.y += ball.speedY * deltaTime;
     ball.z += ball.speedZ * deltaTime;
+    if (run==false)
+    {   
+       ball.x += (ball.speedX) * deltaTime;
+    }else {
+        if (ball.speedX < 0){
+             ball.x += (ball.speedX) * deltaTime; 
+        }
+    }
+    
+    
 
 }
 
@@ -162,64 +212,112 @@ void stickyBall(Ball& ball,float mouseY, float mouseZ) {
 
 }
 
-//Mur mur = {-profondeur/2,0.0,-(hauteur/2),largeur,0.0,profondeur,"x",0.0};
-//Mur mur = {-profondeur/2,0.0,(hauteur/2),largeur,0.0,profondeur,"x",0.0};
-
-//Mur mur = {-profondeur/2,0.0,(hauteur/2),largeur,profondeur,"x",0.0};
-//Mur mur = {-profondeur/2,0.0,-(hauteur/2),largeur,profondeur,"x",0.0};
-//Mur mur = {-profondeur/2.0f,(largeur/2.0f),0.0,hauteur,profondeur,"x",90.0};
-Mur mur = {-profondeur/2.0f,0.0,0.0,6.0,6.0,"y",90.0};
 
 Mur tunnel[] = {
     
-    {-profondeur/2,0.0,(hauteur/2),largeur,profondeur,"x",0.0},
-    {-profondeur/2.0f,-(largeur/2.0f),0.0,hauteur,profondeur,"x",90.0},
-    {-profondeur/2,0.0,-(hauteur/2),largeur,profondeur,"x",0.0},
-    {-profondeur/2.0f,(largeur/2.0f),0.0,hauteur,profondeur,"x",90.0},
+    {-profondeur/16,0.0,(hauteur/2),largeur,profondeur/8,0.0},
+    {-profondeur/16.0f,-(largeur/2.0f),0.0,hauteur,profondeur/8,90.0},
+    {-profondeur/16,0.0,-(hauteur/2),largeur,profondeur/8,0.0},
+    {-profondeur/16.0f,(largeur/2.0f),0.0,hauteur,profondeur/8,90.0}
     
 };
 
-void drawMur(Mur mur) {
+void drawMur(Mur mur,GLuint texture) {
 
+    
+     
+		
+    //glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, texture);
     glPushMatrix();
         
         glTranslatef(mur.x,mur.y,mur.z);
-
-        if (mur.axe == "x") {
-            glRotatef(mur.orientation, 1.0, 0.0, 0.0);
-        } else if (mur.axe == "y") {
-            glRotatef(mur.orientation, 0.0, 1.0, 0.0);
-        } else if (mur.axe == "z") {
-            glRotatef(mur.orientation, 0.0, 0.0, 1.0);
-        }
+       
+        glRotatef(mur.orientation, 1.0, 0.0, 0.0);
+      
         //glScalef(mur.largeur,mur.hauteur,1.0);
         glScalef(mur.profondeur,mur.hauteur,1.0);
         
-        
-        drawSquare();
+        drawSquare(true);
         
     glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
 
 }
 
-void drawTunnel(Mur tunnel[]) {
+void drawTunnel(Mur tunnel[],GLuint texture) {
 
-
-
-    for (int i = 0; i < 4; i++)
-    {   
-        if (i%2 ==0)
-        {
-            glColor3f(0.0,0.0,0.5);
-        }else
-        {
-            glColor3f(0.0,0.0,0.9);
-        }
-        drawMur(tunnel[i]);
+    glPushMatrix();
+    for (int j = 0; j < 4; j++){
+        for (int i = 0; i < 4; i++)
+        {   
+if (j==0){
+    if (i%2 ==0){
+        glColor3f(0.0, 0.0, 0.8); //(bleu clair)
+    }else{
+        glColor3f(0.0, 0.0, 0.5); //(bleu assombri)
+    }
+    if (i==2)
+    {
+        glColor3f(0.0, 0.0, 0.3);
+    }
+    
+}
+else if (j==1){
+    
+        if (i%2 ==0){
+        glColor3f(0.0, 0.0, 0.7); // (bleu-gris)
+    }else{
+        glColor3f(0.0, 0.0, 0.4); //(bleu assombri)
+    }
+    if (i==2)
+    {
+        glColor3f(0.0, 0.0, 0.2);
+    }
+}
+else if (j==2){
+    if (i%2 ==0){
+        glColor3f(0.0, 0.0, 0.6); //(bleu moyen)
+    }else{
+        glColor3f(0.0, 0.0, 0.2); //(bleu assombri)
+    }
+    if (i==2)
+    {
+        glColor3f(0.0, 0.0, 0.2);
     }
 
+}
+else if (j==3){
     
-    
+    if (i%2 ==0){
+        glColor3f(0.0, 0.0, 0.5); //(bleu foncé) 
+    }else{
+        glColor3f(0.0, 0.0, 0.1);//(bleu assombri)
+    }
+    if (i==2)
+    {
+        glColor3f(0.0, 0.0, 0.1);
+    }
+}
+
+
+            
+        
+            drawMur(tunnel[i],texture);
+            
+        }
+        glTranslated(-profondeur/8,0.0,0.0);
+    }
+
+    glPopMatrix();
+
+    glPushMatrix();
+        glColor3f(0.0,0.0,0.0);
+        glTranslated(-profondeur/2,0.0,0.0);
+        glRotated(90,0.0,1.0,0.0);
+        glScalef(20.0f, 30.0f, 1.0);
+        drawSquare(true); 
+    glPopMatrix();
 }
 
 Button button1 = {0.0f, 12.0f, 30.0f, 10.0f};
@@ -233,7 +331,7 @@ void drawButton(Button button) {
         glTranslatef(0.0f, button.y, button.z);
         glRotatef(90.0, 0.0, 1.0, 0.0); 
         glScalef(10.0f, 30.0f, 1.0f);
-        drawSquare();
+        drawSquare(true);
     glPopMatrix();
 }
 
@@ -275,7 +373,7 @@ void drawScore(int score, GLuint* textures) {
             glTranslatef(x, y, z);
             glRotatef(90.0, 0.0, 1.0, 0.0); 
             glScalef(4.0f, 2.5f, 1.0f);
-            drawSquare();
+            drawSquare(true);
         glPopMatrix();
 		glDisable(GL_TEXTURE_2D);
 
@@ -294,10 +392,175 @@ void drawLives(int lives,GLuint texture) {
     for (int i = 0; i < lives; i++) {
         glPushMatrix();
         glTranslatef(x, y + i * 3.0f, z);
+        glRotatef(-90,1.0,0.0,0.0);
+        glRotatef(90,0.0,1.0,0.0);
         drawSphere(texture);
         glPopMatrix();
     }
 }
+
+
+
+void drawLinesObstacle(float z){
+    glPushMatrix();
+        glRotatef(90.0,0.0,1.0,0.0); 
+         glBegin(GL_LINE_LOOP);
+            glVertex3f(xGraph+(hauteur/2)-0.1, yGraph+(largeur/2)-0.1, z);
+            glVertex3f(xGraph-(hauteur/2)+0.1,yGraph+(largeur/2)-0.1, z);
+            glVertex3f(xGraph-(hauteur/2)+0.1,yGraph-(largeur/2)+0.1, z);
+            glVertex3f(xGraph+(hauteur/2)-0.1,yGraph-(largeur/2)+0.1, z);
+        glEnd();
+       
+    glPopMatrix();
+}
+
+std::vector<Line> lignesInit(float profondeur, float espaceObstacle) {
+    std::vector<Line> lignes;
+    for (float i = -profondeur; i < 0; i += espaceObstacle) {
+        Line ligne = {i};
+        lignes.push_back(ligne);
+        std::cout << i << std::endl;
+    } 
+    return lignes;
+}
+std::vector<Line> lignes = lignesInit(profondeur, espaceObstacle);
+
+
+void drawlines(){
+
+    for (int i = 0; i < lignes.size(); i++){
+        if(lignes[i].profondeur > 0){
+            lignes.erase(lignes.begin() + i);
+            Line newLigne = {-profondeur}; 
+            lignes.push_back(newLigne); 
+        };    
+    }
+    
+
+    for (int i = 0; i < lignes.size(); i++){
+        glPushMatrix();
+            float color[3];
+            getColor(lignes[i].profondeur, color);
+            glColor3f(color[0], color[1], color[2]);
+            drawLinesObstacle(lignes[i].profondeur);   
+        glPopMatrix(); 
+    } 
+    
+
+}
+
+void drawObstacle(vector<Obstacle> obstacles){
+
+    for (int i = 0; i < obstacles.size(); i++)
+    {
+        for (int j = 0; j < obstacles[i].Panneaux.size(); j++)
+        {
+            if (obstacles[i].Panneaux[j].x < 0)
+            {
+                glPushMatrix();
+                    
+                    if(niveau1.Obstacles[i].Panneaux[j].impact == true){
+                        glColor3f( 1.0, 1.0, 1.0);
+                           niveau1.Obstacles[i].Panneaux[j].impact = false;
+                        
+                    }else {
+                        float color[3];
+                        getColor(lignes[i].profondeur, color);
+                        glColor3f(color[0], color[1], color[2]);
+                    }
+                  
+                    glTranslatef(obstacles[i].Panneaux[j].x, obstacles[i].Panneaux[j].y, obstacles[i].Panneaux[j].z);
+                    glRotatef(90, 0.0,1.0,0.0);
+                    glRotatef(90, 0.0,0.0,1.0);
+                    glScalef(obstacles[i].Panneaux[j].hauteur, obstacles[i].Panneaux[j].largeur,1.0);
+                    drawSquare(true);  
+                glPopMatrix();
+                    
+            }
+        }
+    }
+    
+
+    
+
+        
+}
+
+void drawBonus(vector<Bonus> Bonus){
+
+     for (int i = 0; i < Bonus.size(); i++)
+    {
+        if (Bonus[i].forme == 0 && Bonus[i].x < 0)
+        {
+            glPushMatrix();
+                glTranslatef(Bonus[i].x, Bonus[i].y, Bonus[i].z);
+                    glColor3f(1.0,1.0,1.0);
+                    glScalef(3.0, 3.0,3.0);
+                    drawCube();  
+            glPopMatrix();
+        }
+        
+       
+    }
+
+}
+
+
+void drawCorridor(float deltaTime, int niveau){
+
+    if(run==true){
+        for (int i = 0; i < lignes.size(); i++)
+        {
+            lignes[i].profondeur+= vitesse_joueur * deltaTime ; 
+            
+        }
+
+        for (int i = 0; i < niveau1.Obstacles.size(); i++)
+        {
+            for (int j = 0; j < niveau1.Obstacles[i].Panneaux.size(); j++)
+            {
+                niveau1.Obstacles[i].Panneaux[j].x += vitesse_joueur * deltaTime;
+                niveau1.Bonus[i].x += vitesse_joueur * deltaTime;
+            }
+        }
+
+
+
+        
+        	
+	}
+    for (float i = 0; i > -profondeur; i= i-espaceObstacle)
+    {   
+       
+            drawlines();
+        
+           //drawSection(espaceObstacle, i);
+            //std::cout << run << std::endl;
+    }   
+
+    drawObstacle(niveau1.Obstacles);
+    drawBonus(niveau1.Bonus);
+    
+    
+}
+
+
+
+
+
+
+
+
+//Si obstacle alors 
+    //drawLignes
+    //drawObstacle(niveau (1, 2 ou 3),  obstacle (random))
+        //Pour tout les pannaux de l'obstacle dessiner pan
+//Sinon
+    //drawLigneS
+
+
+
+
 
 
 

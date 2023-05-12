@@ -31,8 +31,6 @@ typedef struct Mur{
     float hauteur;
     float profondeur;
 
-   
-    string axe; 
     float orientation;
 } Mur;
 
@@ -43,26 +41,32 @@ struct Button {
     float height;// hauteur
 };
 
+struct Line {
+    float profondeur;
+};
 
 
 
-void drawTunnel_base();
+
+
+
 void drawRaquette(double y, double z);
 void drawBall(const Ball& ball,GLuint texture);
 void updateBall(Ball& ball, float deltaTime,float mouseY, float mouseZ);
-void drawMur(Mur mur);
-void drawTunnel(Mur tunnel[]);
+void drawTunnel(Mur tunnel[],GLuint texture);
 void stickyBall(Ball& ball,float mouseY, float mouseZ);
 void drawButton(Button button);
 void drawMenu(GLuint texture1,GLuint texture2,GLuint texture3);
 void drawScore(int score, GLuint* textures);
 void drawLives(int lives,GLuint texture);
+void drawCorridor(float deltaTime,int niveau); 
+
 
 extern Ball myball;  // Déclare l'instance myBall de la structure Ball
 extern Mur mur;  // Déclare l'instance mur de la structure Mur
 extern Mur tunnel[]; // Déclare l'instance tunnel[] de la structure Mur
 extern bool game_status;
-
+extern float raquette_radius;
 
 extern Button button1;
 extern Button button2;
@@ -71,6 +75,9 @@ extern Button button3;
 extern float profondeur;
 extern float hauteur;
 extern float largeur;
+
+
+extern bool run;
 
 
 #endif

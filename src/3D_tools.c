@@ -3,7 +3,7 @@
 /* Camera parameters and functions */
 float theta = 0.0f; // Angle between x axis and viewpoint
 float phy = 90.0f; // Angle between z axis and viewpoint
-float dist_zoom = 40.0f; // Distance between origin and viewpoint
+float dist_zoom = 35.0f; // Distance between origin and viewpoint
 
 
 
@@ -19,9 +19,13 @@ float toRad(float deg) {
 }
 
 
-void drawSquare() {
-	
-	glBegin(GL_TRIANGLE_FAN);
+void drawSquare(bool blend) {
+	if (blend)
+	{
+		glBegin(GL_TRIANGLE_FAN);
+	}else {
+		glBegin(GL_LINE_LOOP);
+	}
 		glTexCoord2f(0, 0);
 		glVertex3f(0.5,-0.5,0.0);
 		glTexCoord2f(1, 0);
@@ -33,6 +37,31 @@ void drawSquare() {
 
 	glEnd();
 }
+
+void drawCube() {
+	
+	glPushMatrix(); // Sauvegarde de la matrice de transformation actuelle
+	// Face avant (Z positif)
+	glTranslatef(0.0, 0.0, 0.5); // Translation vers l'avant
+	drawSquare(false); // Dessin de la face avant
+	// Face arrière (Z négatif)
+	glTranslatef(0.0, 0.0, -1.0); // Translation vers l'arrière
+	drawSquare(false); // Dessin de la face arrière
+
+	glRotatef(90.0, 1.0, 0.0, 0.0); // Rotation de 90 degrés autour de Y
+	// Face avant (Z positif)
+	glTranslatef(0.0, 0.5, 0.5); // Translation vers l'avant
+	drawSquare(false); // Dessin de la face avant
+	// Face arrière (Z négatif)
+	glTranslatef(0.0, 0.0, -1.0); // Translation vers l'arrière
+	drawSquare(false); // Dessin de la face arrière
+	
+	glPopMatrix(); // Restauration de la matrice de transformation précédente
+}
+
+
+
+
 
 void drawCircle() {
 	glBegin(GL_TRIANGLE_FAN);
@@ -54,6 +83,8 @@ void drawCone() {
 	glEnd();
 }
 
+
+
 void drawSphere(GLuint texture) {
 	GLUquadric* sphere = gluNewQuadric();
     glEnable(GL_TEXTURE_2D);
@@ -67,4 +98,12 @@ void drawSphere(GLuint texture) {
     glPopMatrix();
 
     glDisable(GL_TEXTURE_2D);
+}
+
+void getColor(float depth, float color[3]){
+    float baseColor[3] = {0.0, 0.0, 1.0}; // Couleur de base
+    float factor = 1.0 - depth/100.0; // Calcul du facteur de réduction de luminosité
+    for (int i = 0; i < 3; i++){
+        color[i] = baseColor[i] * factor; // Calcul de la couleur réduite
+    }
 }

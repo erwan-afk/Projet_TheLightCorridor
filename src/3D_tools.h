@@ -31,7 +31,7 @@ extern float dist_zoom ; // Distance between origin and viewpoint
 void setCamera();
 
 /* Draw cannonic objet functions */
-void drawSquare();
+void drawSquare(bool full);
 
 void drawCircle();
 
@@ -42,5 +42,6 @@ void drawSphere(GLuint texture);
 /* Small tools */
 float toRad(float deg);
 
+void getColor(float depth, float color[3]);
 
-
+void drawCube();
