@@ -59,7 +59,9 @@ void drawButton(Button button);
 void drawMenu(GLuint texture1,GLuint texture2,GLuint texture3);
 void drawScore(int score, GLuint* textures);
 void drawLives(int lives,GLuint texture);
-void drawCorridor(float deltaTime,int niveau); 
+void drawCorridor(float deltaTime); 
+void drawPrism();
+void check_dead(Ball& ball);
 
 
 extern Ball myball;  // Déclare l'instance myBall de la structure Ball

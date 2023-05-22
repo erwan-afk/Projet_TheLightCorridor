@@ -1,4 +1,5 @@
 #include "3D_tools.h"
+#include <iostream>
 
 /* Camera parameters and functions */
 float theta = 0.0f; // Angle between x axis and viewpoint
@@ -83,6 +84,41 @@ void drawCone() {
 	glEnd();
 }
 
+void drawPrism() {
+    glBegin(GL_LINE_LOOP);
+
+    // Face avant
+    glVertex3f(0.0f, 0.5f, 0.0f);    // Sommet
+    glVertex3f(-0.5f, -0.5f, 0.5f);  // Coin inférieur gauche
+    glVertex3f(0.5f, -0.5f, 0.5f);   // Coin inférieur droit
+
+    // Face droite
+    glVertex3f(0.0f, 0.5f, 0.0f);    // Sommet
+    glVertex3f(0.5f, -0.5f, 0.5f);   // Coin inférieur droit
+    glVertex3f(0.5f, -0.5f, -0.5f);  // Coin inférieur gauche
+
+    // Face arrière
+    glVertex3f(0.0f, 0.5f, 0.0f);    // Sommet
+    glVertex3f(0.5f, -0.5f, -0.5f);  // Coin inférieur gauche
+    glVertex3f(-0.5f, -0.5f, -0.5f); // Coin inférieur droit
+
+    // Face gauche
+    glVertex3f(0.0f, 0.5f, 0.0f);    // Sommet
+    glVertex3f(-0.5f, -0.5f, -0.5f); // Coin inférieur droit
+    glVertex3f(-0.5f, -0.5f, 0.5f);  // Coin inférieur gauche
+
+    // Base
+    glVertex3f(-0.5f, -0.5f, 0.5f);  // Coin inférieur gauche de la face avant
+    glVertex3f(0.5f, -0.5f, 0.5f);   // Coin inférieur droit de la face avant
+    glVertex3f(0.5f, -0.5f, -0.5f);  // Coin inférieur droit de la face droite
+
+    glVertex3f(-0.5f, -0.5f, 0.5f);  // Coin inférieur gauche de la face avant
+    glVertex3f(0.5f, -0.5f, -0.5f);  // Coin inférieur droit de la face droite
+    glVertex3f(-0.5f, -0.5f, -0.5f); // Coin inférieur gauche de la face arrière
+
+    glEnd();
+}
+
 
 
 void drawSphere(GLuint texture) {
@@ -100,10 +136,11 @@ void drawSphere(GLuint texture) {
     glDisable(GL_TEXTURE_2D);
 }
 
-void getColor(float depth, float color[3]){
+void getColor(float depth, float *color){
     float baseColor[3] = {0.0, 0.0, 1.0}; // Couleur de base
-    float factor = 1.0 - depth/100.0; // Calcul du facteur de réduction de luminosité
-    for (int i = 0; i < 3; i++){
-        color[i] = baseColor[i] * factor; // Calcul de la couleur réduite
-    }
+    float factor = depth/90.0; // Calcul du facteur de réduction de luminosité
+		color[0] = 0.0f;
+		color[1] = 0.0f;
+        color[2] = (baseColor[2] * factor)+1;// Calcul de la couleur réduite
+		//std::cout << color[2] << std::endl;
 }

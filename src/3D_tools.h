@@ -42,6 +42,6 @@ void drawSphere(GLuint texture);
 /* Small tools */
 float toRad(float deg);
 
-void getColor(float depth, float color[3]);
+void getColor(float depth, float *color);
 
 void drawCube();

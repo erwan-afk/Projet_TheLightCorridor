@@ -21,7 +21,7 @@ typedef struct Panneau{
 
     bool impact;
     
-};
+}Panneau;
 
 typedef struct Bonus{
     float x;          
@@ -32,20 +32,22 @@ typedef struct Bonus{
     int SpeedRotation;
     int angle;
     
-};
+}Bonus;
 
 typedef struct Obstacle{
     vector<Panneau> Panneaux;
-};
+}Obstacle;
 
 
-struct Niveau{
-    int id; 
+typedef struct Niveau{
     vector<Obstacle> Obstacles;
     vector<Bonus> Bonus;
-}; 
+}Niveau; 
 
+extern std::vector<Niveau> Niveaux_tab;
 extern Niveau niveau1;
+extern Niveau niveau2;
+extern Niveau niveau3;
 
 
 
