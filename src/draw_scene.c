@@ -22,7 +22,7 @@
 
     bool game_status = false;
 
-    float raquette_radius = 3.0f;
+    
 
     bool run = false;
     float espaceObstacle = 10.0f;
@@ -37,10 +37,10 @@
             glTranslatef(0.0,y,z);
             glRotatef(90.0,0.0,1.0,0.0); 
             glBegin(GL_LINE_LOOP);
-                glVertex3f(xGraph+raquette_radius,yGraph+raquette_radius,0.0);
-                glVertex3f(xGraph-raquette_radius,yGraph+raquette_radius,0.0);
-                glVertex3f(xGraph-raquette_radius,yGraph-raquette_radius,0.0);
-                glVertex3f(xGraph+raquette_radius,yGraph-raquette_radius,0.0);
+                glVertex3f(xGraph+config.raquette_radius,yGraph+config.raquette_radius,0.0);
+                glVertex3f(xGraph-config.raquette_radius,yGraph+config.raquette_radius,0.0);
+                glVertex3f(xGraph-config.raquette_radius,yGraph-config.raquette_radius,0.0);
+                glVertex3f(xGraph+config.raquette_radius,yGraph-config.raquette_radius,0.0);
             glEnd();
         glPopMatrix();
 
@@ -120,10 +120,57 @@
                 
                 
             }
+            // Vérifier s'il y a une collision entre la raquette et le panneau
+            if (config.active_niveau.Obstacles[i].Panneaux[j].x >= (-3.0f) && config.active_niveau.Obstacles[i].Panneaux[j].x <= 0.0f)
+            {
+                if (mouseY + config.raquette_radius >= (config.active_niveau.Obstacles[i].Panneaux[j].y - config.active_niveau.Obstacles[i].Panneaux[j].hauteur/2.0f) &&
+                mouseY - config.raquette_radius <= (config.active_niveau.Obstacles[i].Panneaux[j].y + config.active_niveau.Obstacles[i].Panneaux[j].hauteur/2.0f) &&
+                mouseZ + config.raquette_radius >= (config.active_niveau.Obstacles[i].Panneaux[j].z - config.active_niveau.Obstacles[i].Panneaux[j].largeur/2.0f) &&
+                mouseZ - config.raquette_radius <= (config.active_niveau.Obstacles[i].Panneaux[j].z + config.active_niveau.Obstacles[i].Panneaux[j].largeur/2.0f))
+                {
+                    
+                    config.Dead();
+                    
+
+                }
+                
+            }
+            
+            
+   
         }
     }
 
+    for (int i = 0; i < config.active_niveau.Bonus.size(); i++)
+    {
+        if (config.active_niveau.Bonus[i].x >= (-3.0f) && config.active_niveau.Bonus[i].x <= 0.0f)
+            {
+                if (mouseY + config.raquette_radius >= (config.active_niveau.Bonus[i].y - config.active_niveau.Bonus[i].taille/2.0f) &&
+                mouseY - config.raquette_radius <= (config.active_niveau.Bonus[i].y + config.active_niveau.Bonus[i].taille/2.0f) &&
+                mouseZ + config.raquette_radius >= (config.active_niveau.Bonus[i].z - config.active_niveau.Bonus[i].taille/2.0f) &&
+                mouseZ - config.raquette_radius <= (config.active_niveau.Bonus[i].z + config.active_niveau.Bonus[i].taille/2.0f))
+                {
+                    
+                    //config.Dead();
+                    std::cout << "bonus "<<endl;
+                    config.active_niveau.Bonus[i].x = 1.0;
+                    
+                    if (config.active_niveau.Bonus[i].forme == 0)
+                    {
+                        config.Bonus_sticky();
+                    }else {
+                        config.Bonus_vie();
+                    }
+                    
 
+                }
+                
+            }
+        
+    }
+    
+
+    float square_size = 6.0f;
 
 
 
@@ -134,7 +181,7 @@
     
 
 
-        float square_size = 6.0f;
+        
         if (ball.x < (0.0f) || ball.x + ball.radius < (0.0f)){    
             if (ball.y >= (mouseY - square_size/2.0f) and 
             ball.y <= (mouseY + square_size/2.0f) and
@@ -179,10 +226,8 @@
     }
 
     void check_dead(Ball& ball){
-        std::cout << ball.x << std::endl; 
         if (ball.x < (-1.0f)){ //balle derrière la raquette
                 config.Dead();
-                std::cout << "test" << std::endl;
                 game_status = false;
                 ball.speedY = 0; 
                 ball.speedZ = 0; 
@@ -530,11 +575,9 @@ void drawlines(){
 void drawCorridor(float deltaTime){
 
     if(run==true && game_status == true){
-        std::cout << lignes.size()<< std::endl; 
         for (int i = 0; i < lignes.size(); i++)
         {
-            lignes[i].profondeur+= vitesse_joueur * deltaTime ; 
-            std::cout << lignes[i].profondeur<< std::endl; 
+            lignes[i].profondeur+= vitesse_joueur * deltaTime; 
             positionJoueur += 1 * deltaTime;
             config.score = positionJoueur;
 
@@ -580,55 +623,5 @@ void drawCorridor(float deltaTime){
 }
 
 
-
-
-
-
-
-    //Si obstacle alors 
-        //drawLignes
-        //drawObstacle(niveau (1, 2 ou 3),  obstacle (random))
-            //Pour tout les pannaux de l'obstacle dessiner pan
-    //Sinon
-        //drawLigneS
-
-
-
-
-
-
-
-
-
-
-        // Titre du menu
-        /*
-        glColor3f(1.0f, 1.0f, 1.0f);
-        glRasterPos2f(-0.2f, 0.8f);
-        const char* title = "Menu";
-        for (int i = 0; i < strlen(title); i++) {
-            glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, title[i]);
-        }
-        
-        // Bouton 1
-        glColor3f(0.0f, 0.5f, 0.0f);
-        glRectf(-0.2f, 0.2f, 0.2f, 0.4f);
-        glColor3f(1.0f, 1.0f, 1.0f);
-        glRasterPos2f(-0.1f, 0.3f);
-        const char* button1 = "Option 1";
-        for (int i = 0; i < strlen(button1); i++) {
-            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, button1[i]);
-        }
-        
-        // Bouton 2
-        glColor3f(0.5f, 0.0f, 0.0f);
-        glRectf(-0.2f, -0.2f, 0.2f, 0.0f);
-        glColor3f(1.0f, 1.0f, 1.0f);
-        glRasterPos2f(-0.1f, -0.1f);
-        const char* button2 = "Option 2";
-        for (int i = 0; i < strlen(button2); i++) {
-            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, button2[i]);
-        }
-        */
 
 

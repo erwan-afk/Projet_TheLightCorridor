@@ -50,7 +50,11 @@ public:
     /*Variable de jeu*/
     float x_prev,y_prev = 0.0f;
     float x, y = 0.0; 
-    bool start = false;
+    bool sticky_ball = false;
+    bool m_isClickActive = false;
+    /*Dimensions des elements*/
+    float raquette_radius = 3.0f;
+    
 
     Config();
     ~Config();
@@ -58,14 +62,16 @@ public:
     void executeActiveScene(GLFWwindow* window);
     void Dead();
     void Restart();
+    void SetScore(float score);
     void load_level(int active_niveau_index);
+    void Bonus_vie();
+    void Bonus_sticky();
 
 };
 
 class Game : public Scene {
 public:
     Game(Config* config);
-    void testfunction();
     void execution(GLFWwindow* window, Config* config) override;
 
 private:
@@ -99,6 +105,15 @@ private:
     Config* m_config;
 };
 
+class Menu_niveau : public Scene {
+public:
+    Menu_niveau(Config* config);
+    void execution(GLFWwindow* window, Config* config) override;
+
+private:
+    Config* m_config;
+};
+
 
 
 
@@ -111,6 +126,7 @@ extern float focal;
 extern const double FRAMERATE_IN_SECONDS;
 extern double deltaTime;
 extern Config config;
+extern float positionJoueur;
 
 void init_texture();
 

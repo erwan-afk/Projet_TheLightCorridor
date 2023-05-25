@@ -56,12 +56,17 @@ void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 			     double xpos, ypos;	theta += 5;
 				break;
 			case GLFW_KEY_SPACE :
-				if(config.y < (hauteur/2) && config.x < (largeur/2) && config.y > -(hauteur/2) && config.x > -(largeur/2)){
-					game_status = true;
-				}
+		
+				game_status = true;
+				
 				break;
 			case GLFW_KEY_UP :
-                run = true;
+				if (game_status==true || config.sticky_ball ==true)
+				{
+					run = true;
+				}
+			
+                
                 break;
 			default:
 				std::cout << "Touche non gérée (" << key << ")" << std::endl;

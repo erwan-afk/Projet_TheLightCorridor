@@ -78,7 +78,7 @@ extern float profondeur;
 extern float hauteur;
 extern float largeur;
 
-
+extern float positionJoueur;
 extern bool run;
 
 
