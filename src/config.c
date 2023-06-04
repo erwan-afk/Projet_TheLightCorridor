@@ -1,13 +1,12 @@
-#include "config.h"
-#include "niveaux.h"
-#include "3D_tools.h"
-#include "draw_scene.h"
-#include <iostream>
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include "config.h"
+#include "3D_tools.h"
+#include "draw_scene.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+#include <iostream>
 #include <fstream>
 #include <sstream>
 
@@ -15,13 +14,12 @@ int x_image;
 int y_image;
 int n_image;
 
-
-
 GLuint jouer;
 GLuint rejouer;
 GLuint niveaux;
 GLuint quiter;
 GLuint win;
+GLuint loose;
 GLuint textures_nombre[10];
 GLuint texture_ball;
 GLuint texture_mur;
@@ -49,6 +47,7 @@ void init_texture(){
     quiter = load_texture("../textures/quiter.jpg");
 
 	win = load_texture("../textures/win.jpg");
+	loose = load_texture("../textures/loose.jpg");
 
 	texture_ball = load_texture("../textures/metal.jpg");
 	texture_mur = load_texture("../textures/mur.jpg");
@@ -61,12 +60,6 @@ void init_texture(){
 		std::string chemin = "../textures/niveaux/" + std::to_string(i+1) + ".jpg";
 		button_niveaux[i] = load_texture(chemin);
 	}
-
-	
-
-
-
-	
 }
 
 
@@ -75,7 +68,7 @@ unsigned int WINDOW_WIDTH = 1000;
 unsigned int WINDOW_HEIGHT = 1000;
 const char WINDOW_TITLE[] = "The Light Corridor";
 float aspectRatio = 1.0;
-float focal = 60.0; 
+float focal = 60.0;
 const double FRAMERATE_IN_SECONDS = 1. / 30.;
 double deltaTime = 0.0;
 
@@ -110,7 +103,7 @@ void Config::load_level(int index) {
 				for (int j = 0; j < config.active_niveau.Obstacles[i].Panneaux.size(); j++)
 				{
 					config.active_niveau.Obstacles[i].Panneaux[j].x -= 90.0;
-					config.active_niveau.Bonus[i].x -= 90.0;
+					config.active_niveau.bonus_items[i].x -= 90.0;
 				}
 			}
 		}
@@ -165,7 +158,7 @@ void Config::Dead(){
 			for (int j = 0; j < config.active_niveau.Obstacles[i].Panneaux.size(); j++)
 			{
 				config.active_niveau.Obstacles[i].Panneaux[j].x -= 10.0;
-				config.active_niveau.Bonus[i].x -= 10.0;
+				config.active_niveau.bonus_items[i].x -= 10.0;
 			}
 		}
 		/*traitement du bonus si on meurt on le perd*/
@@ -297,9 +290,13 @@ Menu::Menu(Config* config) : m_config(config) {}
 void Menu::execution(GLFWwindow* window, Config* config) {
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
+
+
 		double xpos, ypos;
 		int left_button_state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
-		if (left_button_state == GLFW_RELEASE) {
+
+
+		if (!lock_interaction && left_button_state == GLFW_PRESS) {
 			glfwGetCursorPos(window, &xpos, &ypos);
 			// Traiter le clic ici en utilisant les coordonnées xpos et ypos
 
@@ -328,7 +325,9 @@ void Menu::execution(GLFWwindow* window, Config* config) {
 			}
 		}
 
-		
+		if (left_button_state == GLFW_RELEASE) {
+			lock_interaction = false;
+		}
 		
 
 //		glEnable(GL_DEPTH_TEST);
@@ -397,7 +396,7 @@ void Menu_GameOver::execution(GLFWwindow* window, Config* config) {
 		setCamera();
 
 		
-		drawMenu(rejouer,rejouer,quiter);
+		drawMenu(loose,rejouer,quiter);
 
 		
 		glColor3f(1.0,1.0,1.0);
@@ -455,7 +454,7 @@ void Menu_GameWin::execution(GLFWwindow* window, Config* config) {
 		setCamera();
 
 		
-		drawMenu(win,win,quiter);
+		drawMenu(win,rejouer,quiter);
 
 		
 		glColor3f(1.0,1.0,1.0);
@@ -479,7 +478,8 @@ void Menu_niveau::execution(GLFWwindow* window, Config* config) {
 
 		double xpos, ypos;
 		int left_button_state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
-		if (left_button_state == GLFW_PRESS) {
+
+		if (!lock_interaction && left_button_state == GLFW_PRESS) {
 			glfwGetCursorPos(window, &xpos, &ypos);
 
 			
@@ -514,8 +514,13 @@ void Menu_niveau::execution(GLFWwindow* window, Config* config) {
 					m_config->load_level(2);
 					
 				}
+				lock_interaction = true;
 			
 			
+		}
+
+		if (left_button_state == GLFW_RELEASE) {
+			lock_interaction = false;
 		}
 
 		

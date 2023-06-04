@@ -1,7 +1,4 @@
 #pragma once
-#ifndef DRAW_SCENE_H
-#define DRAW_SCENE_H
-
 
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -45,11 +42,6 @@ struct Line {
     float profondeur;
 };
 
-
-
-
-
-
 void drawRaquette(double y, double z);
 void drawBall(const Ball& ball,GLuint texture);
 void updateBall(Ball& ball, float deltaTime,float mouseY, float mouseZ);
@@ -80,6 +72,3 @@ extern float largeur;
 
 extern float positionJoueur;
 extern bool run;
-
-
-#endif

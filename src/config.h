@@ -1,40 +1,10 @@
 #pragma once
 
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
-
-// Needed before including GL/glu.h 
-// to avoid a compilation error because of CALLBACK pre-processor definition.
-// See https://stackoverflow.com/questions/19198244/how-do-i-get-rid-of-these-compiler-errors-in-glu-h#comment28407913_19198244
-// It's usually defined in a system header to define the default calling convention for callbacks, 
-// but if it is defined incorrectly this sort of thing happens.
-// windef.h usually defines it is __stdcall
-#if defined(_WIN64) || defined(_WIN32)
-    #include <windef.h>
-#endif
-#include <GL/gl.h>
-#include <GL/glu.h>
-
-// important to add this line to use M_PI
-#define _USE_MATH_DEFINES
-#include <math.h>
-
-#ifndef CONFIG_H
-#define CONFIG_H
-
 #include <vector>
 #include "niveaux.h"
-
-
-
+#include "3D_tools.h"
 
 class Scene;
-class Config;
-
-class Scene {
-public:
-    virtual void execution(GLFWwindow* window, Config* config) = 0;
-};
 
 class Config {
 public:
@@ -46,7 +16,6 @@ public:
     int active_niveau_index = 0;
     Niveau active_niveau = Niveaux_tab[this->active_niveau_index];
 
-
     /*Variable de jeu*/
     float x_prev,y_prev = 0.0f;
     float x, y = 0.0; 
@@ -54,7 +23,6 @@ public:
     bool m_isClickActive = false;
     /*Dimensions des elements*/
     float raquette_radius = 3.0f;
-    
 
     Config();
     ~Config();
@@ -66,7 +34,11 @@ public:
     void load_level(int active_niveau_index);
     void Bonus_vie();
     void Bonus_sticky();
+};
 
+class Scene {
+public:
+    virtual void execution(GLFWwindow* window, Config* config) = 0;
 };
 
 class Game : public Scene {
@@ -85,6 +57,7 @@ public:
 
 private:
     Config* m_config;
+    bool lock_interaction = true;
 };
 
 class Menu_GameOver : public Scene {
@@ -112,12 +85,12 @@ public:
 
 private:
     Config* m_config;
+    bool lock_interaction = true;
 };
 
-
-
-
 /* Window properties */
+
+
 extern unsigned int WINDOW_WIDTH;
 extern unsigned int WINDOW_HEIGHT;
 extern const char WINDOW_TITLE[];
@@ -129,6 +102,3 @@ extern Config config;
 extern float positionJoueur;
 
 void init_texture();
-
-
-#endif // CONFIG_H

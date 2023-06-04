@@ -3,31 +3,44 @@
     #include "3D_tools.h"
     #include "niveaux.h"
 
-
-
     #include <vector>
     #include <iostream>
+
+    //-------- Varaibles --------//
 
     float profondeur = 180.0;
     float hauteur = 20.0;
     float largeur = 30.0;
-
     const float coefRaquette = 5.0; 
 
-    //Parametre souris 
     float xGraph = 0.0;
-    float yGraph = 0.0; 
-
-    Ball myball = { 0.0f, 0.0f, 0.0f, 1.0f, 50.0f, 0.0f, 0.0f };
-
+    float yGraph = 0.0;
     bool game_status = false;
-
-    
-
     bool run = false;
     float espaceObstacle = 10.0f;
     float positionJoueur = 0.0f;
     float vitesse_joueur = 30.0f;
+    float square_size = 6.0f;
+    
+
+
+    //-------- Objects --------//
+
+    Ball myball = { 0.0f, 0.0f, 0.0f, 1.0f, 50.0f, 0.0f, 0.0f };
+
+    Button button1 = {0.0f, 12.0f, 30.0f, 10.0f};
+    Button button2 = {0.0f, 0.0f, 30.0f, 10.0f};
+    Button button3 = {0.0f, -12.0f, 30.0f, 10.0f};
+
+    std::vector<Line> lignes = {{-180}, {-170},{-160}, {-150}, {-140}, {-130}, {-120}, {-110},{-100}, {-90}, {-80}, {-70}, {-60}, {-50}, {-40}, {-30}, {-20}, {-10}};//lignesInit(profondeur, espaceObstacle);
+
+    Mur tunnel[] = {
+        {-profondeur/16,0.0,(hauteur/2),largeur,profondeur/8,0.0},
+        {-profondeur/16.0f,-(largeur/2.0f),0.0,hauteur,profondeur/8,90.0},
+        {-profondeur/16,0.0,-(hauteur/2),largeur,profondeur/8,0.0},
+        {-profondeur/16.0f,(largeur/2.0f),0.0,hauteur,profondeur/8,90.0}
+    
+    };
 
 
     void drawRaquette(double y, double z) {
@@ -83,105 +96,92 @@
 
 
 
-    for (int i = 0; i < config.active_niveau.Obstacles.size(); i++)
-    {
-        for (int j = 0; j < config.active_niveau.Obstacles[i].Panneaux.size(); j++)
+        for (int i = 0; i < config.active_niveau.Obstacles.size(); i++)
         {
-            if (ball.y + ball.radius >= (config.active_niveau.Obstacles[i].Panneaux[j].y - config.active_niveau.Obstacles[i].Panneaux[j].hauteur/2.0f) and
-                ball.y - ball.radius<= (config.active_niveau.Obstacles[i].Panneaux[j].y + config.active_niveau.Obstacles[i].Panneaux[j].hauteur/2.0f) and
-                ball.z + ball.radius >= (config.active_niveau.Obstacles[i].Panneaux[j].z - config.active_niveau.Obstacles[i].Panneaux[j].largeur/2.0f) and 
-                ball.z - ball.radius<= (config.active_niveau.Obstacles[i].Panneaux[j].z + config.active_niveau.Obstacles[i].Panneaux[j].largeur/2.0f))
-            {   
-                //std::cout << ball.speedX << endl;
-                if (ball.x + ball.radius >= -config.active_niveau.Obstacles[i].Panneaux[j].x - config.active_niveau.Obstacles[i].Panneaux[j].largeur / 2.0f && 
-                    ball.x - ball.radius <= -config.active_niveau.Obstacles[i].Panneaux[j].x + config.active_niveau.Obstacles[i].Panneaux[j].largeur / 2.0f && ball.speedX > 0) {
-                    ball.speedX = -ball.speedX;
-                    ball.x = ball.x-1.0;
-                    
-
-                    config.active_niveau.Obstacles[i].Panneaux[j].impact = true;
-                
-
-                }
-
-                else if (ball.x + ball.radius >= -config.active_niveau.Obstacles[i].Panneaux[j].x - config.active_niveau.Obstacles[i].Panneaux[j].largeur / 2.0f && 
-                    ball.x - ball.radius <= -config.active_niveau.Obstacles[i].Panneaux[j].x + config.active_niveau.Obstacles[i].Panneaux[j].largeur / 2.0f && ball.speedX < 0) {
-                    ball.speedX = -ball.speedX;
-                    ball.x = ball.x+1.0;
-                    //std::cout << "touché sens inverse murx : " << -config.active_niveau.Obstacles[i].Panneaux[j].x <<endl;
-                    config.active_niveau.Obstacles[i].Panneaux[j].impact = true;
-                    // if (-config.active_niveau.Obstacles[i].Panneaux[j].x < ball.x + ball.radius + 1.0)
-                    // {
-                    //   std::cout << "ouaos2 "<<endl;
-                    //     ball.speedY = 0; 
-                    //     ball.speedZ = 0; 
-                    // }
-                }
-                
-                
-            }
-            // Vérifier s'il y a une collision entre la raquette et le panneau
-            if (config.active_niveau.Obstacles[i].Panneaux[j].x >= (-3.0f) && config.active_niveau.Obstacles[i].Panneaux[j].x <= 0.0f)
+            for (int j = 0; j < config.active_niveau.Obstacles[i].Panneaux.size(); j++)
             {
-                if (mouseY + config.raquette_radius >= (config.active_niveau.Obstacles[i].Panneaux[j].y - config.active_niveau.Obstacles[i].Panneaux[j].hauteur/2.0f) &&
-                mouseY - config.raquette_radius <= (config.active_niveau.Obstacles[i].Panneaux[j].y + config.active_niveau.Obstacles[i].Panneaux[j].hauteur/2.0f) &&
-                mouseZ + config.raquette_radius >= (config.active_niveau.Obstacles[i].Panneaux[j].z - config.active_niveau.Obstacles[i].Panneaux[j].largeur/2.0f) &&
-                mouseZ - config.raquette_radius <= (config.active_niveau.Obstacles[i].Panneaux[j].z + config.active_niveau.Obstacles[i].Panneaux[j].largeur/2.0f))
-                {
-                    
-                    config.Dead();
+                if (ball.y + ball.radius >= (config.active_niveau.Obstacles[i].Panneaux[j].y - config.active_niveau.Obstacles[i].Panneaux[j].hauteur/2.0f) and
+                    ball.y - ball.radius<= (config.active_niveau.Obstacles[i].Panneaux[j].y + config.active_niveau.Obstacles[i].Panneaux[j].hauteur/2.0f) and
+                    ball.z + ball.radius >= (config.active_niveau.Obstacles[i].Panneaux[j].z - config.active_niveau.Obstacles[i].Panneaux[j].largeur/2.0f) and 
+                    ball.z - ball.radius<= (config.active_niveau.Obstacles[i].Panneaux[j].z + config.active_niveau.Obstacles[i].Panneaux[j].largeur/2.0f))
+                {   
+                    //std::cout << ball.speedX << endl;
+                    if (ball.x + ball.radius >= -config.active_niveau.Obstacles[i].Panneaux[j].x - config.active_niveau.Obstacles[i].Panneaux[j].largeur / 2.0f && 
+                        ball.x - ball.radius <= -config.active_niveau.Obstacles[i].Panneaux[j].x + config.active_niveau.Obstacles[i].Panneaux[j].largeur / 2.0f && ball.speedX > 0) {
+                        ball.speedX = -ball.speedX;
+                        ball.x = ball.x-1.0;
+                        
+
+                        config.active_niveau.Obstacles[i].Panneaux[j].impact = true;
                     
 
-                }
-                
-            }
-            
-            
-   
-        }
-    }
+                    }
 
-    for (int i = 0; i < config.active_niveau.Bonus.size(); i++)
-    {
-        if (config.active_niveau.Bonus[i].x >= (-3.0f) && config.active_niveau.Bonus[i].x <= 0.0f)
-            {
-                if (mouseY + config.raquette_radius >= (config.active_niveau.Bonus[i].y - config.active_niveau.Bonus[i].taille/2.0f) &&
-                mouseY - config.raquette_radius <= (config.active_niveau.Bonus[i].y + config.active_niveau.Bonus[i].taille/2.0f) &&
-                mouseZ + config.raquette_radius >= (config.active_niveau.Bonus[i].z - config.active_niveau.Bonus[i].taille/2.0f) &&
-                mouseZ - config.raquette_radius <= (config.active_niveau.Bonus[i].z + config.active_niveau.Bonus[i].taille/2.0f))
-                {
-                    
-                    //config.Dead();
-                    std::cout << "bonus "<<endl;
-                    config.active_niveau.Bonus[i].x = 1.0;
-                    
-                    if (config.active_niveau.Bonus[i].forme == 0)
-                    {
-                        config.Bonus_sticky();
-                    }else {
-                        config.Bonus_vie();
+                    else if (ball.x + ball.radius >= -config.active_niveau.Obstacles[i].Panneaux[j].x - config.active_niveau.Obstacles[i].Panneaux[j].largeur / 2.0f && 
+                        ball.x - ball.radius <= -config.active_niveau.Obstacles[i].Panneaux[j].x + config.active_niveau.Obstacles[i].Panneaux[j].largeur / 2.0f && ball.speedX < 0) {
+                        ball.speedX = -ball.speedX;
+                        ball.x = ball.x+1.0;
+                        //std::cout << "touché sens inverse murx : " << -config.active_niveau.Obstacles[i].Panneaux[j].x <<endl;
+                        config.active_niveau.Obstacles[i].Panneaux[j].impact = true;
+                        // if (-config.active_niveau.Obstacles[i].Panneaux[j].x < ball.x + ball.radius + 1.0)
+                        // {
+                        //   std::cout << "ouaos2 "<<endl;
+                        //     ball.speedY = 0; 
+                        //     ball.speedZ = 0; 
+                        // }
                     }
                     
+                    
+                }
+                // Vérifier s'il y a une collision entre la raquette et le panneau
+                if (config.active_niveau.Obstacles[i].Panneaux[j].x >= (-3.0f) && config.active_niveau.Obstacles[i].Panneaux[j].x <= 0.0f)
+                {
+                    if (mouseY + config.raquette_radius >= (config.active_niveau.Obstacles[i].Panneaux[j].y - config.active_niveau.Obstacles[i].Panneaux[j].hauteur/2.0f) &&
+                    mouseY - config.raquette_radius <= (config.active_niveau.Obstacles[i].Panneaux[j].y + config.active_niveau.Obstacles[i].Panneaux[j].hauteur/2.0f) &&
+                    mouseZ + config.raquette_radius >= (config.active_niveau.Obstacles[i].Panneaux[j].z - config.active_niveau.Obstacles[i].Panneaux[j].largeur/2.0f) &&
+                    mouseZ - config.raquette_radius <= (config.active_niveau.Obstacles[i].Panneaux[j].z + config.active_niveau.Obstacles[i].Panneaux[j].largeur/2.0f))
+                    {
+                        
+                        config.Dead();
+                        
 
+                    }
+                    
                 }
                 
+                
+    
             }
-        
-    }
+        }
+
+        for (int i = 0; i < config.active_niveau.bonus_items.size(); i++)
+        {
+            if (config.active_niveau.bonus_items[i].x >= (-3.0f) && config.active_niveau.bonus_items[i].x <= 0.0f)
+                {
+                    if (mouseY + config.raquette_radius >= (config.active_niveau.bonus_items[i].y - config.active_niveau.bonus_items[i].taille/2.0f) &&
+                    mouseY - config.raquette_radius <= (config.active_niveau.bonus_items[i].y + config.active_niveau.bonus_items[i].taille/2.0f) &&
+                    mouseZ + config.raquette_radius >= (config.active_niveau.bonus_items[i].z - config.active_niveau.bonus_items[i].taille/2.0f) &&
+                    mouseZ - config.raquette_radius <= (config.active_niveau.bonus_items[i].z + config.active_niveau.bonus_items[i].taille/2.0f))
+                    {
+                        
+                        //config.Dead();
+                        std::cout << "bonus "<<endl;
+                        config.active_niveau.bonus_items[i].x = 1.0;
+                        
+                        if (config.active_niveau.bonus_items[i].forme == 0)
+                        {
+                            config.Bonus_sticky();
+                        }else {
+                            config.Bonus_vie();
+                        }
+                        
+
+                    }
+                    
+                }
+            
+        }
     
-
-    float square_size = 6.0f;
-
-
-
-        
-
-
-        
-    
-
-
-        
         if (ball.x < (0.0f) || ball.x + ball.radius < (0.0f)){    
             if (ball.y >= (mouseY - square_size/2.0f) and 
             ball.y <= (mouseY + square_size/2.0f) and
@@ -198,9 +198,7 @@
                 
             }
         }
-        
 
-        
         ball.y += ball.speedY * deltaTime;
         ball.z += ball.speedZ * deltaTime;
         if (run==false)
@@ -211,8 +209,6 @@
                 ball.x += (ball.speedX) * deltaTime; 
             }
         }
-        
-        
 
     }
 
@@ -236,14 +232,7 @@
     }   
 
 
-    Mur tunnel[] = {
-        
-        {-profondeur/16,0.0,(hauteur/2),largeur,profondeur/8,0.0},
-        {-profondeur/16.0f,-(largeur/2.0f),0.0,hauteur,profondeur/8,90.0},
-        {-profondeur/16,0.0,-(hauteur/2),largeur,profondeur/8,0.0},
-        {-profondeur/16.0f,(largeur/2.0f),0.0,hauteur,profondeur/8,90.0}
-        
-    };
+
 
     void drawMur(Mur mur,GLuint texture) {
 
@@ -322,9 +311,7 @@
             glColor3f(0.0, 0.0, 0.1);
         }
     }
-
-
-                
+         
             
                 drawMur(tunnel[i],texture);
                 
@@ -342,11 +329,6 @@
             drawSquare(true); 
         glPopMatrix();
     }
-
-    Button button1 = {0.0f, 12.0f, 30.0f, 10.0f};
-    Button button2 = {0.0f, 0.0f, 30.0f, 10.0f};
-    Button button3 = {0.0f, -12.0f, 30.0f, 10.0f};
-
 
 
     void drawButton(Button button) {
@@ -421,56 +403,39 @@
             glPopMatrix();
         }
     }
-
-
-
-
-void drawLine(float z){
-    glPushMatrix();
-        glRotatef(90.0,0.0,1.0,0.0); 
-         glBegin(GL_LINE_LOOP);
-            glVertex3f(xGraph+(hauteur/2)-0.1, yGraph+(largeur/2)-0.1, z);
-            glVertex3f(xGraph-(hauteur/2)+0.1,yGraph+(largeur/2)-0.1, z);
-            glVertex3f(xGraph-(hauteur/2)+0.1,yGraph-(largeur/2)+0.1, z);
-            glVertex3f(xGraph+(hauteur/2)-0.1,yGraph-(largeur/2)+0.1, z);
-        glEnd();
-       
-    glPopMatrix();
-}
-
-//tableau des lignes
-// std::vector<Line> lignesInit(float profondeur, float espaceObstacle) {
-//     std::vector<Line> lignes;
-//     for (float i = -profondeur; i < 0; i += espaceObstacle) {
-//         Line ligne = {i};
-//         lignes.push_back(ligne);
-//     } 
-//           std::cout << "----------"<< std::endl; 
-//     return lignes;
-// }
-std::vector<Line> lignes = {{-180}, {-170},{-160}, {-150}, {-140}, {-130}, {-120}, {-110},{-100}, {-90}, {-80}, {-70}, {-60}, {-50}, {-40}, {-30}, {-20}, {-10}};//lignesInit(profondeur, espaceObstacle);
-
-
-void drawlines(){
-
-    for (int i = 0; i < lignes.size(); i++){
-        if(lignes[i].profondeur > 0){
-            lignes.erase(lignes.begin() + i);
-            Line newLigne = {-profondeur}; 
-            lignes.push_back(newLigne); 
-        };    
-    }
     
-
-    for (int i = 0; i < lignes.size(); i++){
+    void drawLine(float z){
         glPushMatrix();
-            float color[3];
-            getColor(lignes[i].profondeur, color);
-            glColor3f(color[0], color[1], color[2]);
-            drawLine(lignes[i].profondeur);   
-        glPopMatrix(); 
-    } 
-}
+            glRotatef(90.0,0.0,1.0,0.0); 
+            glBegin(GL_LINE_LOOP);
+                glVertex3f(xGraph+(hauteur/2)-0.1, yGraph+(largeur/2)-0.1, z);
+                glVertex3f(xGraph-(hauteur/2)+0.1,yGraph+(largeur/2)-0.1, z);
+                glVertex3f(xGraph-(hauteur/2)+0.1,yGraph-(largeur/2)+0.1, z);
+                glVertex3f(xGraph+(hauteur/2)-0.1,yGraph-(largeur/2)+0.1, z);
+            glEnd();
+        
+        glPopMatrix();
+    }
+
+    void drawlines(){
+
+        for (int i = 0; i < lignes.size(); i++){
+            if(lignes[i].profondeur > 0){
+                lignes.erase(lignes.begin() + i);
+                Line newLigne = {-profondeur}; 
+                lignes.push_back(newLigne); 
+            };    
+        }
+        
+        for (int i = 0; i < lignes.size(); i++){
+            glPushMatrix();
+                float color[3];
+                getColor(lignes[i].profondeur, color);
+                glColor3f(color[0], color[1], color[2]);
+                drawLine(lignes[i].profondeur);   
+            glPopMatrix(); 
+        } 
+    }
 
     void drawObstacle(vector<Obstacle> obstacles){
 
@@ -487,13 +452,10 @@ void drawlines(){
                             config.active_niveau.Obstacles[i].Panneaux[j].impact = false;
                             
                         }else {
-
-
                             float color[3];
                             getColor(config.active_niveau.Obstacles[i].Panneaux[j].x, color);
                             glColor3f(color[0], color[1], color[2]);
                         }
-                    
                         glTranslatef(config.active_niveau.Obstacles[i].Panneaux[j].x, config.active_niveau.Obstacles[i].Panneaux[j].y, config.active_niveau.Obstacles[i].Panneaux[j].z);
                         glRotatef(90, 0.0,1.0,0.0);
                         glRotatef(90, 0.0,0.0,1.0);
@@ -504,14 +466,8 @@ void drawlines(){
                 }
             }
         }
-        
-
-        
-
             
     }
-
-
 
     void drawBonus(vector<Bonus> Bonus){
 
@@ -526,8 +482,7 @@ void drawlines(){
                         glScalef(3.0, 3.0,3.0);
                         drawCube();  
                 glPopMatrix();
-            
-                
+
             }
 
             if (Bonus[i].forme == 1 && Bonus[i].x < 0)
@@ -542,9 +497,7 @@ void drawlines(){
             
                 
             }
-            
-            
-        
+
         }
 
     }
@@ -570,58 +523,43 @@ void drawlines(){
     }
 
 
+    void drawCorridor(float deltaTime){
 
-
-void drawCorridor(float deltaTime){
-
-    if(run==true && game_status == true){
-        for (int i = 0; i < lignes.size(); i++)
-        {
-            lignes[i].profondeur+= vitesse_joueur * deltaTime; 
-            positionJoueur += 1 * deltaTime;
-            config.score = positionJoueur;
-
-            
-        }
-
-        for (int i = 0; i < config.active_niveau.Obstacles.size(); i++)
-        {
-            for (int j = 0; j < config.active_niveau.Obstacles[i].Panneaux.size(); j++)
+        if(run==true && game_status == true){
+            for (int i = 0; i < lignes.size(); i++)
             {
-                config.active_niveau.Obstacles[i].Panneaux[j].x += vitesse_joueur * deltaTime;
-                config.active_niveau.Bonus[i].x += vitesse_joueur * deltaTime;
+                lignes[i].profondeur+= vitesse_joueur * deltaTime; 
+                positionJoueur += 1 * deltaTime;
+                config.score = positionJoueur;
+
+                
             }
-        }
 
-
+            for (int i = 0; i < config.active_niveau.Obstacles.size(); i++)
+            {
+                for (int j = 0; j < config.active_niveau.Obstacles[i].Panneaux.size(); j++)
+                {
+                    config.active_niveau.Obstacles[i].Panneaux[j].x += vitesse_joueur * deltaTime;
+                    config.active_niveau.bonus_items[i].x += vitesse_joueur * deltaTime;
+                }
+            }
 
         
-        	
-	}
-        // Vérifie si tous les obstacles ont dépassé la position cible
-        float targetPosition = 0.0f;  // La position cible est 0
-        if (areAllObstaclesPastTargetPosition(config.active_niveau.Obstacles, targetPosition)) {
-            // Tous les obstacles ont dépassé la position cible
-            // Effectuez les actions appropriées ici
-            config.load_level(config.active_niveau_index+1);
-            
-            
-            
+                
         }
+            // Vérifie si tous les obstacles ont dépassé la position cible
+            float targetPosition = 0.0f;  // La position cible est 0
+            if (areAllObstaclesPastTargetPosition(config.active_niveau.Obstacles, targetPosition)) {
+                // Tous les obstacles ont dépassé la position cible
+                // Effectuez les actions appropriées ici
+                config.load_level(config.active_niveau_index+1);
+                
+                
+                
+            }
 
-       
-            
-        
-           //drawSection(espaceObstacle, i);
-            //std::cout << run << std::endl;
- 
-    drawlines();
-    drawObstacle(config.active_niveau.Obstacles);
-    drawBonus(config.active_niveau.Bonus);
+        drawlines();
+        drawObstacle(config.active_niveau.Obstacles);
+        drawBonus(config.active_niveau.bonus_items);
     
-    
-}
-
-
-
-
+    }
